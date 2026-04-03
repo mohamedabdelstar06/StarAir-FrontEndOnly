@@ -168,12 +168,14 @@ export function AdvancedTrendChart({
     const dx = visibleDays.length > 1 ? w / (visibleDays.length - 1) : 0
 
     const makeData = (key: 'go' | 'caution' | 'nogo' | 'pending') => {
-        if (visibleDays.length === 0) return { path: '', points: [] as { x: number; y: number }[] }
+        if (visibleDays.length === 0) return { path: '', areaPath: '', points: [] as { x: number; y: number }[] }
         const pts = visibleDays.map((d, i) => ({
             x: i * dx,
             y: chartHeight - chartPad - ((d[key] / maxTotal) * (chartHeight - chartPad * 2)),
         }))
-        return { path: makeSmoothPath(pts), points: pts }
+        const pathLine = makeSmoothPath(pts)
+        const areaPath = pts.length > 0 ? `${pathLine} L ${pts[pts.length - 1].x} ${chartHeight - chartPad} L ${pts[0].x} ${chartHeight - chartPad} Z` : ''
+        return { path: pathLine, areaPath, points: pts }
     }
 
     const goData = makeData('go')
@@ -283,6 +285,25 @@ export function AdvancedTrendChart({
                         preserveAspectRatio="none"
                         className="absolute inset-0 overflow-visible"
                     >
+                        <defs>
+                            <linearGradient id="grad-go" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stopColor={COLORS.go} stopOpacity={0.25} />
+                                <stop offset="100%" stopColor={COLORS.go} stopOpacity={0} />
+                            </linearGradient>
+                            <linearGradient id="grad-caution" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stopColor={COLORS.caution} stopOpacity={0.25} />
+                                <stop offset="100%" stopColor={COLORS.caution} stopOpacity={0} />
+                            </linearGradient>
+                            <linearGradient id="grad-nogo" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stopColor={COLORS.nogo} stopOpacity={0.25} />
+                                <stop offset="100%" stopColor={COLORS.nogo} stopOpacity={0} />
+                            </linearGradient>
+                            <linearGradient id="grad-pending" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stopColor={COLORS.pending} stopOpacity={0.25} />
+                                <stop offset="100%" stopColor={COLORS.pending} stopOpacity={0} />
+                            </linearGradient>
+                        </defs>
+
                         {/* Hover visual vertical highlight */}
                         {hoveredIdx !== null && (
                             <rect
@@ -312,6 +333,12 @@ export function AdvancedTrendChart({
                                 />
                             )
                         })()}
+
+                        {/* Area backgrounds */}
+                        <path d={goData.areaPath} fill="url(#grad-go)" className="transition-all duration-300" />
+                        <path d={cautionData.areaPath} fill="url(#grad-caution)" className="transition-all duration-300" />
+                        <path d={nogoData.areaPath} fill="url(#grad-nogo)" className="transition-all duration-300" />
+                        <path d={pendingData.areaPath} fill="url(#grad-pending)" className="transition-all duration-300" />
 
                         {/* Go smooth curve */}
                         <path d={goData.path} fill="none" stroke={COLORS.go} strokeWidth={4} strokeLinecap="round" strokeLinejoin="round" />
@@ -536,15 +563,15 @@ export function SystemPieChart({
             </div>
 
             {pieTotal > 0 ? (
-                <div className="flex flex-col xl:flex-row items-center justify-start mt-10 gap-8 xl:gap-6">
+                <div className="flex flex-col items-center mt-8 gap-6 w-full flex-1">
                     {/* Donut Chart */}
-                    <div className="relative flex justify-center items-center shrink-0 w-[200px] h-[200px] mx-auto md:mx-0">
-                        <svg width={200} height={200} className="-rotate-90">
+                    <div className="relative flex justify-center items-center shrink-0 w-[160px] h-[160px] mx-auto">
+                        <svg width={160} height={160} className="-rotate-90">
                             {/* Background ring */}
-                            <circle cx={100} cy={100} r={75} fill="none" stroke="#f1f5f9" strokeWidth={35} />
+                            <circle cx={80} cy={80} r={60} fill="none" stroke="#f1f5f9" strokeWidth={24} />
                             {topReasons.reduce(
                                 (acc, [, count], idx) => {
-                                    const circumference = 2 * Math.PI * 75
+                                    const circumference = 2 * Math.PI * 60
                                     const gap = topReasons.length > 1 ? 4 : 0 // gap in px
                                     const ratio = count / pieTotal
                                     const rawDash = ratio * circumference
@@ -555,12 +582,12 @@ export function SystemPieChart({
                                         acc.elements.push(
                                             <circle
                                                 key={idx}
-                                                cx={100}
-                                                cy={100}
-                                                r={75}
+                                                cx={80}
+                                                cy={80}
+                                                r={60}
                                                 fill="none"
                                                 stroke={PIE_COLORS[idx % PIE_COLORS.length]}
-                                                strokeWidth={35}
+                                                strokeWidth={24}
                                                 strokeDasharray={`${dash} ${circumference - dash}`}
                                                 strokeDashoffset={-offset}
                                             />
@@ -575,23 +602,23 @@ export function SystemPieChart({
                         {/* Center Box */}
                         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none select-none">
                             <span className="text-3xl font-black text-slate-800 leading-none">{pieTotal}</span>
-                            <span className="text-xs font-semibold text-slate-400 mt-1 uppercase">Reasons</span>
+                            <span className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-widest">Reasons</span>
                         </div>
                     </div>
                     {/* Legend */}
-                    <div className="flex-1 w-full space-y-3.5 pr-4 md:pl-2">
+                    <div className="w-full space-y-3.5 mt-2 overflow-y-auto">
                         {topReasons.map(([reason, count], idx) => {
                             const pct = Math.round((count / pieTotal) * 100)
                             return (
-                                <div key={reason} className="flex justify-between items-center text-base">
-                                    <div className="flex items-center gap-3">
+                                <div key={reason} className="flex justify-between items-center text-sm">
+                                    <div className="flex items-center gap-3 overflow-hidden">
                                         <div
                                             className="w-3.5 h-3.5 rounded-full shrink-0 shadow-sm"
                                             style={{ backgroundColor: PIE_COLORS[idx % PIE_COLORS.length] }}
                                         />
-                                        <span className="font-semibold text-slate-500 whitespace-nowrap">{reason}</span>
+                                        <span className="font-semibold text-slate-600 truncate mr-2" title={reason}>{reason}</span>
                                     </div>
-                                    <span className="font-bold text-slate-800 ml-4">{pct}%</span>
+                                    <span className="font-bold text-slate-800 tabular-nums shrink-0">{pct}%</span>
                                 </div>
                             )
                         })}
