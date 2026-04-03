@@ -536,7 +536,7 @@ export function SystemPieChart({
             </div>
 
             {pieTotal > 0 ? (
-                <div className="flex flex-col md:flex-row items-center justify-between mt-4 gap-8 md:gap-4 flex-1">
+                <div className="flex flex-col xl:flex-row items-center justify-start mt-10 gap-8 xl:gap-6">
                     {/* Donut Chart */}
                     <div className="relative flex justify-center items-center shrink-0 w-[200px] h-[200px] mx-auto md:mx-0">
                         <svg width={200} height={200} className="-rotate-90">
