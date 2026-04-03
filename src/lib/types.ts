@@ -312,6 +312,16 @@ export interface CreateFlightTripDto {
     flightNumber?: string
 }
 
+export interface UpdateFlightTripDto {
+    flightCategory?: string
+    aircraftType?: string
+    departure?: string
+    arrival?: string
+    departureTime?: string
+    flightNumber?: string
+    status?: string
+}
+
 export interface FlightTripResponseDto {
     id: number
     pilotId: string

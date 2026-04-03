@@ -172,9 +172,11 @@ export function DashboardPage() {
     return (
         <div className="space-y-6">
             {/* Top metrics */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 <MetricCard value={stats.totalPilots} label="Total Pilots" icon={<Users size={18} className="text-primary-500" />} />
                 <MetricCard value={stats.activePilots} label="Active Pilots" icon={<Activity size={18} className="text-green-600" />} color="text-green-600" />
+                <MetricCard value={`${goRate}%`} label="Go Rate" icon={<TrendingUp size={18} className="text-green-600" />} color="text-green-600" />
+                <MetricCard value={stats.noGoCount} label="No-Go" icon={<XCircle size={18} className="text-red-600" />} color="text-red-600" />
             </div>
 
             {/* 2/3 + 1/3 grid */}
@@ -182,12 +184,6 @@ export function DashboardPage() {
 
                 {/* LEFT 2/3 */}
                 <div className="xl:col-span-2 space-y-6">
-                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                        <MetricCard value={stats.totalImSafeAssessments} label="IMSAFE" icon={<ShieldCheck size={18} className="text-primary-500" />} />
-                        <MetricCard value={stats.totalPaveAssessments} label="PAVE" icon={<ClipboardCheck size={18} className="text-primary-500" />} />
-                        <MetricCard value={`${goRate}%`} label="Go Rate" icon={<TrendingUp size={18} className="text-green-600" />} color="text-green-600" />
-                        <MetricCard value={stats.noGoCount} label="No-Go" icon={<XCircle size={18} className="text-red-600" />} color="text-red-600" />
-                    </div>
 
                     {/* Smooth curve chart */}
                     <AdvancedTrendChart assessments={allAssessments} flights={flights} title="System Wide Trend Report" />

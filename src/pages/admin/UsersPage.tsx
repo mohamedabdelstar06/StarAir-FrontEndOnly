@@ -116,7 +116,7 @@ export function UsersPage() {
                                         <td><StatusBadge status={u.status} /></td>
                                         <td>
                                             <div className="flex items-center gap-1">
-                                                <button onClick={() => openEdit(u)} className="btn-icon" title="Edit"><Edit size={14} /></button>
+                                                <button onClick={() => openEdit(u)} className="p-1.5 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors" title="Edit User"><Edit size={18} /></button>
                                                 <button onClick={() => handleToggle(u.id)} className="btn-icon" title="Toggle status">
                                                     {u.status === 'Active' ? <ToggleRight size={16} className="text-green-400" /> : <ToggleLeft size={16} className="text-slate-500" />}
                                                 </button>

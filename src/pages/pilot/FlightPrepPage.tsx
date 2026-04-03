@@ -163,9 +163,7 @@ export function FlightPrepPage() {
     const [stepNotes, setStepNotes] = useState('')
     const [decideSaving, setDecideSaving] = useState(false)
     const [decideStarted, setDecideStarted] = useState(false)
-    const [considerOption1, setConsiderOption1] = useState('')
-    const [considerOption2, setConsiderOption2] = useState('')
-    const [considerOption3, setConsiderOption3] = useState('')
+    const [decideInputs, setDecideInputs] = useState<Record<number, string>>({})
 
     // ── SmartWatch scan ──
     const startScan = async () => {
@@ -198,12 +196,48 @@ export function FlightPrepPage() {
                 // Pre-fill scenario
                 setScenario(`Pre-flight decision analysis for Trip ${found.flightNumber || found.id} (${found.departure} → ${found.arrival})`)
                 setIcao(found.departure)
-                // Determine current step from completed assessments
                 if (!swDone) {
-                    // Check if they have prior smartwatch data
                     try {
                         const { data: analysis } = await smartWatchApi.getAnalysis()
                         if (analysis) { setSwAnalysis(analysis); setSwDone(true) }
+                    } catch { }
+                }
+                
+                // Pre-load IMSAFE
+                if (found.imSafeAssessmentId) {
+                    try {
+                        const { data } = await imSafeApi.getMy()
+                        const target = data.find(x => x.id === found.imSafeAssessmentId)
+                        if (target) {
+                            setImResult(target)
+                            setImForm({
+                                illnessLevel: target.illnessLevel === 'None' ? 0 : 3,
+                                medicationLevel: target.medicationLevel === 'None' ? 0 : 3,
+                                stressLevel: target.stressLevel === 'None' ? 0 : 3,
+                                alcoholLevel: target.alcoholLevel === 'None' ? 0 : 3,
+                                fatigueLevel: target.fatigueLevel === 'None' ? 0 : 3,
+                                emotionLevel: target.emotionLevel === 'None' ? 0 : 3,
+                                dataSource: 0, isSynced: true
+                            })
+                        }
+                    } catch { }
+                }
+
+                // Pre-load PAVE
+                if (found.paveAssessmentId) {
+                    try {
+                        const { data } = await paveApi.getMy()
+                        const target = data.find(x => x.id === found.paveAssessmentId)
+                        if (target) {
+                            setPaveResult(target)
+                            setPaveForm({
+                                pilotRiskLevel: target.pilotRiskLevel === 'None' ? 0 : 3,
+                                aircraftRiskLevel: target.aircraftRiskLevel === 'None' ? 0 : 3,
+                                environmentRiskLevel: target.environmentRiskLevel === 'None' ? 0 : 3,
+                                externalRiskLevel: target.externalRiskLevel === 'None' ? 0 : 3,
+                                isSynced: true
+                            })
+                        }
                     } catch { }
                 }
             }
@@ -286,25 +320,27 @@ export function FlightPrepPage() {
         } finally { setDecideSaving(false) }
     }
 
-    // ── DECIDE step submit ──
-    const submitDecideStep = async () => {
-        if (!decideSessionId) return
+    // ── DECIDE submit ──
+    const submitAllDecide = async () => {
         setDecideSaving(true)
         try {
-            const step = DECIDE_STEPS[decideStep]
-            await decideApi.addStep(decideSessionId, { stepType: step.type, input: stepInput, notes: stepNotes })
-            if (decideStep < DECIDE_STEPS.length - 1) {
-                setDecideStep(s => s + 1)
-                setStepInput(''); setStepNotes('')
-                setConsiderOption1(''); setConsiderOption2(''); setConsiderOption3('')
-            } else {
-                await decideApi.completeSession(decideSessionId)
-                if (flight) {
-                    await flightApi.link(flight.id, { decideSessionId: decideSessionId })
-                }
-                loadFlight()
-                setActiveStep(null) // all done
+            let sId = decideSessionId
+            if (!sId) {
+                const { data } = await decideApi.createSession({ scenario })
+                sId = data.id
+                setDecideSessionId(sId)
             }
+            // Add all steps
+            for (let i = 0; i < DECIDE_STEPS.length; i++) {
+                const step = DECIDE_STEPS[i]
+                await decideApi.addStep(sId, { stepType: step.type, input: decideInputs[i] || 'Observed' })
+            }
+            await decideApi.completeSession(sId)
+            if (flight && sId) {
+                await flightApi.link(flight.id, { decideSessionId: sId })
+            }
+            loadFlight()
+            setActiveStep(null) // all done
         } finally { setDecideSaving(false) }
     }
 
@@ -464,27 +500,7 @@ export function FlightPrepPage() {
         }
 
         // ── IMSAFE Panel ──
-        if (activeStep === 1) {
-            if (imSafeDone) {
-                return (
-                    <div className="space-y-4">
-                        <div className="flex items-center gap-3 p-4 rounded-xl bg-green-500/10 border border-green-500/30">
-                            <CheckCircle size={24} className="text-green-400" />
-                            <div>
-                                <div className="font-bold text-green-400">IMSAFE completed</div>
-                                <div className="text-sm text-slate-400">Assessment linked to this trip.</div>
-                            </div>
-                        </div>
-                        {imResult && <ResultCard result={imResult.result} score={imResult.overallRiskScore} outOf={18} />}
-                        <div className="flex justify-end">
-                            <button onClick={() => setActiveStep(2)}
-                                className="btn-primary flex items-center gap-2 px-8 py-3 text-base">
-                                Next: PAVE Assessment <ArrowRight size={18} />
-                            </button>
-                        </div>
-                    </div>
-                )
-            }
+        if (activeStep === 1) { 
             return (
                 <form onSubmit={handleImSubmit} className="space-y-3">
                     {imResult && <ResultCard result={imResult.result} score={imResult.overallRiskScore} outOf={18} />}
@@ -514,35 +530,6 @@ export function FlightPrepPage() {
 
         // ── PAVE Panel ──
         if (activeStep === 2) {
-            if (paveDone) {
-                return (
-                    <div className="space-y-4">
-                        <div className="flex items-center gap-3 p-4 rounded-xl bg-green-500/10 border border-green-500/30">
-                            <CheckCircle size={24} className="text-green-400" />
-                            <div>
-                                <div className="font-bold text-green-400">PAVE completed</div>
-                                <div className="text-sm text-slate-400">Assessment linked to this trip.</div>
-                            </div>
-                        </div>
-                        {paveResult && (
-                            <div className={clsx('rounded-xl border p-4 text-center',
-                                paveResult.result === 'Go' ? 'bg-green-500/10 border-green-500/30' :
-                                    paveResult.result === 'Caution' ? 'bg-amber-500/10 border-amber-500/30' : 'bg-red-500/10 border-red-500/30')}>
-                                <div className={clsx('text-xl font-bold', paveResult.result === 'Go' ? 'text-green-400' : paveResult.result === 'Caution' ? 'text-amber-400' : 'text-red-400')}>
-                                    PAVE Result: {paveResult.result}
-                                </div>
-                                <div className="text-sm text-slate-400 mt-1">Score: {paveResult.overallRiskScore}/12</div>
-                            </div>
-                        )}
-                        <div className="flex justify-end">
-                            <button onClick={() => setActiveStep(3)}
-                                className="btn-primary flex items-center gap-2 px-8 py-3 text-base">
-                                Next: DECIDE Model <ArrowRight size={18} />
-                            </button>
-                        </div>
-                    </div>
-                )
-            }
             return (
                 <form onSubmit={handlePaveSubmit} className="space-y-3">
                     <div className="space-y-3">
@@ -567,67 +554,34 @@ export function FlightPrepPage() {
 
         // ── DECIDE Panel ──
         if (activeStep === 3) {
-            if (decideDone) {
-                return (
-                    <div className="flex items-center gap-3 p-4 rounded-xl bg-green-500/10 border border-green-500/30">
-                        <CheckCircle size={24} className="text-green-400" />
-                        <div>
-                            <div className="font-bold text-green-400">DECIDE completed</div>
-                            <div className="text-sm text-slate-400">All assessments done. You may now clear for departure.</div>
-                        </div>
-                    </div>
-                )
-            }
-            if (!decideStarted) {
-                return (
-                    <div className="space-y-4">
-                        <div className="flex justify-end">
-                            <button onClick={startDecide} disabled={decideSaving} className="btn-primary flex items-center gap-2 px-10 py-4 text-base font-bold">
-                                {decideSaving ? <Loader2 size={16} className="animate-spin" /> : <Brain size={16} />}
-                                Start DECIDE Session
-                            </button>
-                        </div>
-                    </div>
-                )
-            }
-            const currentDecideStep = DECIDE_STEPS[decideStep]
             return (
-                <div className="space-y-5">
-                    {/* DECIDE Step progress */}
-                    <div className="flex items-center gap-1 flex-wrap">
-                        {DECIDE_STEPS.map((s, i) => (
-                            <div key={i} className="flex items-center gap-1">
-                                <div className={clsx('w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold border transition-all',
-                                    i < decideStep ? 'bg-primary-600 border-primary-500 text-white' :
-                                        i === decideStep ? `bg-cockpit-800 ${s.color} border-current` :
-                                            'bg-cockpit-800 border-cockpit-600 text-slate-600')}>
-                                    {i < decideStep ? <Check size={12} /> : s.key}
+                <div className="space-y-6">
+                    {DECIDE_STEPS.map((s, i) => (
+                        <div key={i} className={clsx('rounded-xl border p-5 space-y-4', s.bg)}>
+                            <div>
+                                <div className={clsx('text-xs font-semibold uppercase tracking-wider', s.color)}>Step {i + 1} of {DECIDE_STEPS.length}</div>
+                                <div className="text-lg font-bold text-slate-100 mt-1">{s.label}</div>
+                                <div className="text-sm text-slate-400 mt-0.5 leading-relaxed">{s.desc}</div>
+                            </div>
+                            <div className="space-y-4 mt-4">
+                                <div className="text-sm font-black text-black">Action:</div>
+                                <div className="flex gap-4">
+                                    {['Observed', 'Decided'].map(act => (
+                                        <button key={act} type="button" onClick={() => setDecideInputs(prev => ({ ...prev, [i]: act }))}
+                                            className={clsx('px-6 py-3 border-2 rounded-xl text-lg font-black transition-all',
+                                                decideInputs[i] === act ? 'bg-black text-white border-black' : 'bg-white text-black border-black/20 hover:border-black')}>
+                                            {act}
+                                        </button>
+                                    ))}
                                 </div>
-                                {i < DECIDE_STEPS.length - 1 && <div className={clsx('h-0.5 w-4 transition-all', i < decideStep ? 'bg-primary-600' : 'bg-cockpit-700')} />}
-                            </div>
-                        ))}
-                    </div>
-                    <div className={clsx('rounded-xl border p-5 space-y-4', currentDecideStep.bg)}>
-                        <div>
-                            <div className={clsx('text-xs font-semibold uppercase tracking-wider', currentDecideStep.color)}>Step {decideStep + 1} of {DECIDE_STEPS.length}</div>
-                            <div className="text-lg font-bold text-slate-100 mt-1">{currentDecideStep.label}</div>
-                            <div className="text-sm text-slate-400 mt-0.5 leading-relaxed">{currentDecideStep.desc}</div>
-                        </div>
-
-                        {/* Only Ok or No / Observed or Decided no text inputs */}
-                        <div className="space-y-4 text-center mt-6">
-                            <div className="text-xl font-black text-black">Action:</div>
-                            <div className="flex gap-4 justify-center">
-                                <button type="button" onClick={() => { setStepInput('Observed'); submitDecideStep() }} disabled={decideSaving}
-                                    className="px-8 py-4 bg-white hover:bg-black hover:text-white text-black border-2 border-black rounded-xl text-xl font-black transition-all">
-                                    Observed
-                                </button>
-                                <button type="button" onClick={() => { setStepInput('Decided'); submitDecideStep() }} disabled={decideSaving}
-                                    className="px-8 py-4 bg-white hover:bg-black hover:text-white text-black border-2 border-black rounded-xl text-xl font-black transition-all">
-                                    Decided
-                                </button>
                             </div>
                         </div>
+                    ))}
+                    <div className="flex justify-end pt-4">
+                        <button onClick={submitAllDecide} disabled={decideSaving} className="btn-primary flex items-center gap-2 px-10 py-4 text-lg font-bold">
+                            {decideSaving ? <Loader2 size={18} className="animate-spin" /> : <Brain size={18} />}
+                            Submit DECIDE Form
+                        </button>
                     </div>
                 </div>
             )
@@ -637,8 +591,10 @@ export function FlightPrepPage() {
     }
 
     return (
-        <div className="w-full px-8 pb-12 space-y-6 animate-fade-in">
-            {/* Header */}
+        <div className="w-full px-4 xl:px-8 pb-12 flex flex-col lg:flex-row gap-6 animate-fade-in items-start">
+            {/* Left Sidebar (Mission Prep Info) */}
+            <div className="w-full lg:w-1/3 lg:sticky lg:top-6 space-y-6">
+                {/* Header */}
             <div className="flex items-center gap-4">
                 <Link to="/dashboard" className="btn-icon"><ChevronLeft size={20} /></Link>
                 <div>
@@ -650,12 +606,12 @@ export function FlightPrepPage() {
             {/* Flight Info Card */}
             <div className="glass-card overflow-hidden border-t-4 border-primary-500">
                 {/* Category + Aircraft */}
-                <div className="px-6 pt-4 flex gap-4 text-base text-black">
+                <div className="px-6 pt-4 flex gap-4 text-sm text-black">
                     <span className="font-bold">{flight.flightCategory}</span>
                     <span className="text-slate-600">•</span>
                     <span className="text-slate-700">{flight.aircraftType}</span>
                 </div>
-                <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="p-6 grid grid-cols-1 gap-6">
                     <div className="flex items-center justify-between text-center bg-slate-50 p-5 rounded-2xl border border-slate-200 col-span-full md:col-span-1">
                         <div className="flex-1">
                             <div className="text-slate-500 text-xs font-bold uppercase tracking-widest mb-1">Departure</div>
@@ -670,8 +626,8 @@ export function FlightPrepPage() {
                         </div>
                     </div>
                     <div className="space-y-2 flex flex-col justify-center">
-                        <div className="flex items-center gap-2 text-base text-black"><Calendar size={14} className="text-primary-500" /> {new Date(flight.departureTime).toLocaleDateString()}</div>
-                        <div className="flex items-center gap-2 text-base text-black"><Clock size={14} className="text-primary-500" /> {new Date(flight.departureTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                        <div className="flex items-center gap-2 text-sm text-black"><Calendar size={14} className="text-primary-500" /> {new Date(flight.departureTime).toLocaleDateString()}</div>
+                        <div className="flex items-center gap-2 text-sm text-black"><Clock size={14} className="text-primary-500" /> {new Date(flight.departureTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
                         <div className={clsx('text-xs font-black uppercase tracking-widest mt-2 px-3 py-1.5 rounded-lg w-fit',
                             flight.status === 'Cleared' ? 'bg-green-500/10 text-green-400' :
                                 flight.status === 'Completed' ? 'bg-blue-500/10 text-blue-400' : 'bg-amber-500/10 text-amber-400')}>
@@ -683,6 +639,10 @@ export function FlightPrepPage() {
 
             {/* Weather Element */}
             {flight.departure && <WeatherWidget icao={flight.departure} />}
+        </div>
+        
+        {/* Right Content (Forms & steps) */}
+        <div className="w-full lg:w-2/3 space-y-6">
 
             {/* All Done Banner */}
             {allDone && (
@@ -742,8 +702,8 @@ export function FlightPrepPage() {
                 </div>
 
                 {/* Progress bar */}
-                <div className="space-y-1.5">
-                    <div className="flex justify-between text-xs text-slate-500">
+                <div className="space-y-1.5 mt-6 pt-4 border-t border-slate-200">
+                    <div className="flex justify-between text-base font-black text-black">
                         <span>Overall Progress</span>
                         <span>{stepStatus.filter(Boolean).length} / {stepStatus.length}</span>
                     </div>
@@ -769,6 +729,7 @@ export function FlightPrepPage() {
                     {renderActivePanel()}
                 </div>
             )}
+        </div>
         </div>
     )
 }

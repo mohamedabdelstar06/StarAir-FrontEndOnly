@@ -1,10 +1,10 @@
 import { useEffect, useState, useRef } from 'react'
 import { flightApi, usersApi } from '../../lib/apiClient'
-import type { FlightTripResponseDto, UserResponseDto, CreateFlightTripDto } from '../../lib/types'
+import type { FlightTripResponseDto, UserResponseDto, CreateFlightTripDto, UpdateFlightTripDto } from '../../lib/types'
 import { FLIGHT_CATEGORIES, getAircraftByCategory } from '../../lib/aircraftData'
 import { searchAerodromes, type Aerodrome } from '../../lib/aerodromeData'
 import { useNotificationStore } from '../../stores/notificationStore'
-import { Plus, Plane, Trash2, Calendar, User, RefreshCw, X, ShieldCheck, ClipboardCheck, Brain, Eye } from 'lucide-react'
+import { Plus, Plane, Trash2, Calendar, User, RefreshCw, X, ShieldCheck, ClipboardCheck, Brain, Eye, Edit } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import clsx from 'clsx'
 
@@ -81,6 +81,8 @@ export function FlightManagementPage() {
     const [pilots, setPilots] = useState<UserResponseDto[]>([])
     const [loading, setLoading] = useState(true)
     const [showModal, setShowModal] = useState(false)
+    const [mode, setMode] = useState<'create'|'edit'>('create')
+    const [editId, setEditId] = useState<number | null>(null)
     const addNotification = useNotificationStore(s => s.addNotification)
 
     // Form State
@@ -137,8 +139,25 @@ export function FlightManagementPage() {
     useEffect(() => { loadData() }, [])
 
     const resetForm = () => {
+        setMode('create'); setEditId(null)
         setTripTitle(''); setFlightCategory(''); setAircraftType(''); setPilotId('')
         setDeparture(''); setArrival(''); setDepartureTime(''); setDescription(''); setFormError('')
+    }
+
+    const openEditTrip = (f: FlightTripResponseDto) => {
+        setMode('edit'); setEditId(f.id)
+        setTripTitle(f.flightNumber || '')
+        setFlightCategory(f.flightCategory)
+        setAircraftType(f.aircraftType)
+        setPilotId(f.pilotId) // will be disabled in edit mode
+        setDeparture(f.departure)
+        setArrival(f.arrival)
+        const dt = new Date(f.departureTime)
+        // format for datetime-local: YYYY-MM-DDThh:mm
+        const tzOffset = dt.getTimezoneOffset() * 60000; // offset in milliseconds
+        const localISOTime = (new Date(dt.getTime() - tzOffset)).toISOString().slice(0, 16);
+        setDepartureTime(localISOTime)
+        setShowModal(true)
     }
 
     const handleCreate = async (e: React.FormEvent) => {
@@ -151,28 +170,40 @@ export function FlightManagementPage() {
         if (!departureTime) { setFormError('Please set the departure date & time.'); return }
 
         setSubmitting(true)
-        const dto: CreateFlightTripDto = {
-            pilotId,
-            flightCategory,
-            aircraftType,
-            departure: departure.toUpperCase().trim(),
-            arrival: arrival.toUpperCase().trim(),
-            departureTime,
-            flightNumber: tripTitle || `${departure.toUpperCase()}-${arrival.toUpperCase()}`,
-        }
         try {
-            await flightApi.create(dto)
+            if (mode === 'create') {
+                const dto: CreateFlightTripDto = {
+                    pilotId,
+                    flightCategory,
+                    aircraftType,
+                    departure: departure.toUpperCase().trim(),
+                    arrival: arrival.toUpperCase().trim(),
+                    departureTime,
+                    flightNumber: tripTitle || `${departure.toUpperCase()}-${arrival.toUpperCase()}`,
+                }
+                await flightApi.create(dto)
 
-            // Notification for the assigned pilot
-            const assignedPilot = pilots.find(p => p.id === pilotId)
-            addNotification({
-                type: 'trip_assigned',
-                title: 'New Trip Assigned',
-                message: `Trip ${dto.flightNumber} (${departure} → ${arrival}) on ${aircraftType} has been assigned to ${assignedPilot?.email || 'pilot'}.`,
-                flightId: undefined,
-                pilotId,
-                pilotName: assignedPilot?.fullName,
-            })
+                // Notification for the assigned pilot
+                const assignedPilot = pilots.find(p => p.id === pilotId)
+                addNotification({
+                    type: 'trip_assigned',
+                    title: 'New Trip Assigned',
+                    message: `Trip ${dto.flightNumber} (${departure} → ${arrival}) on ${aircraftType} has been assigned to ${assignedPilot?.email || 'pilot'}.`,
+                    flightId: undefined,
+                    pilotId,
+                    pilotName: assignedPilot?.fullName,
+                })
+            } else if (mode === 'edit' && editId) {
+                const dto: UpdateFlightTripDto = {
+                    flightCategory,
+                    aircraftType,
+                    departure: departure.toUpperCase().trim(),
+                    arrival: arrival.toUpperCase().trim(),
+                    departureTime,
+                    flightNumber: tripTitle || `${departure.toUpperCase()}-${arrival.toUpperCase()}`,
+                }
+                await flightApi.update(editId, dto)
+            }
 
             setShowModal(false)
             resetForm()
@@ -238,14 +269,17 @@ export function FlightManagementPage() {
                                 <div className={clsx('badge text-xs', getStatusBadge(f.status))}>
                                     {f.status}
                                 </div>
-                                <div className="flex items-center gap-1">
+                                <div className="flex items-center gap-2">
                                     {isReviewable && (
-                                        <div title="View Assessment Report" className="p-1.5 rounded-lg bg-primary-50 text-primary-600">
-                                            <Eye size={14} />
+                                        <div title="View Assessment Report" className="p-1.5 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors">
+                                            <Eye size={18} />
                                         </div>
                                     )}
-                                    <button onClick={(e) => { e.stopPropagation(); handleDelete(f.id) }} className="text-slate-400 hover:text-red-600 transition-colors opacity-0 group-hover:opacity-100 p-1">
-                                        <Trash2 size={16} />
+                                    <button onClick={(e) => { e.stopPropagation(); openEditTrip(f) }} className="p-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors" title="Edit Trip">
+                                        <Edit size={18} />
+                                    </button>
+                                    <button onClick={(e) => { e.stopPropagation(); handleDelete(f.id) }} className="text-red-500 p-1.5 rounded-lg bg-red-50 hover:bg-red-100 transition-colors pointer-events-auto opacity-100" title="Delete Trip">
+                                        <Trash2 size={18} />
                                     </button>
                                 </div>
                             </div>
@@ -304,9 +338,9 @@ export function FlightManagementPage() {
                                     </div>
                                 </div>
                                 {isReviewable && (
-                                    <div className="flex items-center gap-2 px-3 py-2 bg-primary-50 rounded-xl border border-primary-200">
-                                        <Eye size={14} className="text-primary-600" />
-                                        <span className="text-sm font-black text-primary-700 uppercase tracking-wider">View Full Assessment Report</span>
+                                    <div className="flex items-center gap-2 px-3 py-2 bg-blue-50 rounded-xl border border-blue-200">
+                                        <Eye size={16} className="text-blue-600" />
+                                        <span className="text-sm font-black text-blue-700 uppercase tracking-wider">View Full Assessment Report</span>
                                     </div>
                                 )}
                             </div>
@@ -330,7 +364,7 @@ export function FlightManagementPage() {
                         {/* Header */}
                         <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-primary-50">
                             <h2 className="text-xl font-bold text-black flex items-center gap-2">
-                                <Plane size={20} className="text-primary-500" /> Create New Trip
+                                <Plane size={20} className="text-primary-500" /> {mode === 'create' ? 'Create New Trip' : 'Edit Trip'}
                             </h2>
                             <button onClick={() => { setShowModal(false); resetForm() }} className="text-slate-500 hover:text-black transition-colors">
                                 <X size={20} />
@@ -420,12 +454,13 @@ export function FlightManagementPage() {
 
                                 {/* Assign Pilot (Email dropdown) */}
                                 <div className="space-y-1.5">
-                                    <label className="text-sm font-bold text-black uppercase tracking-widest">Assign Pilot (Email) *</label>
+                                    <label className="text-sm font-bold text-black uppercase tracking-widest">Assign Pilot (Email) {mode === 'create' && '*'}</label>
                                     <select
-                                        className="w-full bg-white border-2 border-slate-300 rounded-xl px-4 py-3 text-black outline-none focus:border-primary-500 transition-all text-base"
+                                        className="w-full bg-white border-2 border-slate-300 rounded-xl px-4 py-3 text-black outline-none focus:border-primary-500 transition-all text-base disabled:opacity-50 disabled:bg-slate-100"
                                         value={pilotId}
                                         onChange={e => setPilotId(e.target.value)}
-                                        required
+                                        required={mode === 'create'}
+                                        disabled={mode === 'edit'}
                                     >
                                         <option value="">Select pilot email...</option>
                                         {(!pilots || pilots.length === 0) ? (
@@ -466,7 +501,7 @@ export function FlightManagementPage() {
                                     disabled={submitting}
                                     className={clsx('flex-[2] px-4 py-3 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-xl transition-all flex items-center justify-center gap-2 text-base', submitting && 'opacity-50')}
                                 >
-                                    {submitting ? <RefreshCw className="animate-spin" size={18} /> : <><Plus size={18} /> Create & Assign Trip</>}
+                                    {submitting ? <RefreshCw className="animate-spin" size={18} /> : <><Plus size={18} /> {mode === 'create' ? 'Create & Assign Trip' : 'Save Changes'}</>}
                                 </button>
                             </div>
                         </form>

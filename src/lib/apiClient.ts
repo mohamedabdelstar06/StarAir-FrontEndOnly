@@ -10,7 +10,7 @@ import type {
     KneeboardNoteResponseDto, CreateKneeboardNoteDto,
     ChecklistResponseDto, CreateChecklistDto,
     AuditLogDto,
-    CreateFlightTripDto, FlightTripResponseDto, LinkAssessmentDto
+    CreateFlightTripDto, UpdateFlightTripDto, FlightTripResponseDto, LinkAssessmentDto
 } from './types'
 
 // ─── Auth ──────────────────────────────────────────────────────────────
@@ -114,6 +114,7 @@ export const checklistApi = {
 // ─── Flights ──────────────────────────────────────────────────────────
 export const flightApi = {
     create: (dto: CreateFlightTripDto) => api.post<FlightTripResponseDto>('/api/flight', dto),
+    update: (id: number, dto: UpdateFlightTripDto) => api.put<FlightTripResponseDto>(`/api/flight/${id}`, dto),
     getMy: () => api.get<FlightTripResponseDto[]>('/api/flight/my'),
     getAll: () => api.get<FlightTripResponseDto[]>('/api/flight'),
     link: (id: number, dto: LinkAssessmentDto) => api.patch<FlightTripResponseDto>(`/api/flight/${id}/link`, dto),

@@ -43,7 +43,7 @@ export function LandingPage() {
                         </button>
                         <button
                             onClick={handleLoginClick}
-                            className="btn-primary"
+                            className="btn-primary text-sm sm:text-base px-4 py-2 sm:px-6 sm:py-3 whitespace-nowrap"
                             id="landing-login-btn"
                         >
                             {isAuthenticated ? '🚀 Go to Dashboard' : 'Member Login'}
@@ -57,18 +57,18 @@ export function LandingPage() {
                 <section className="py-24 lg:py-32 overflow-hidden bg-primary-50 dark:bg-slate-900 border-b border-primary-100 dark:border-slate-800">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid md:grid-cols-2 gap-16 items-center">
                         <div>
-                            <h1 className="text-5xl lg:text-7xl font-black text-slate-900 dark:text-white mb-6 leading-tight tracking-tight">
-                                Aviation Safety, <br />
+                            <h1 className="text-4xl sm:text-5xl lg:text-7xl font-black text-slate-900 dark:text-white mb-6 leading-tight tracking-tight">
+                                Aviation Safety, <br className="hidden sm:block" />
                                 <span className="text-primary-600 dark:text-primary-400">Elevated.</span>
                             </h1>
                             <p className="text-xl text-slate-600 dark:text-slate-300 mb-10 font-medium leading-relaxed max-w-lg">
                                 STAR Air ADM empowers commercial airline pilots with advanced risk assessment, biometric monitoring, and comprehensive safety toolkits.
                             </p>
-                            <div className="flex flex-wrap gap-4">
-                                <Link to="/about" className="btn-primary text-xl px-10">
+                            <div className="flex flex-col sm:flex-row flex-wrap gap-4">
+                                <Link to="/about" className="btn-primary text-lg sm:text-xl px-10 text-center">
                                     🚀 Our Business
                                 </Link>
-                                <button onClick={handleLoginClick} className="btn-secondary text-xl px-10">
+                                <button onClick={handleLoginClick} className="btn-secondary text-lg sm:text-xl px-10 text-center">
                                     {isAuthenticated ? '📊 My Dashboard' : "🌟 Let's Fly"}
                                 </button>
                             </div>

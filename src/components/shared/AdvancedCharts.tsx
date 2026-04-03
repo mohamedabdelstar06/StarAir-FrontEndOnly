@@ -529,67 +529,79 @@ export function SystemPieChart({
     const PIE_COLORS = ['#ef4444', '#f97316', '#f59e0b', '#eab308', '#84cc16', '#06b6d4']
 
     return (
-        <div className="glass-card p-6 flex flex-col items-center h-full">
-            <h2 className="text-xl font-black text-black w-full mb-6 flex items-center gap-2">
-                <AlertTriangle size={22} className="text-amber-600" />
-                Reasons for Missing "OK"
-            </h2>
+        <div className="bg-white rounded-[24px] shadow-sm border border-slate-200 px-6 py-8 flex flex-col h-full font-sans">
+            <div className="mb-4 text-center md:text-left">
+                <h2 className="text-2xl font-bold text-slate-800 tracking-tight">Reasons for Missing "OK"</h2>
+                <div className="text-base text-slate-500 mt-1 font-medium select-none">Breakdown of reported risks</div>
+            </div>
 
             {pieTotal > 0 ? (
-                <>
-                    <div className="flex flex-col items-center py-4">
+                <div className="flex flex-col md:flex-row items-center justify-between mt-4 gap-8 md:gap-4 flex-1">
+                    {/* Donut Chart */}
+                    <div className="relative flex justify-center items-center shrink-0 w-[200px] h-[200px] mx-auto md:mx-0">
                         <svg width={200} height={200} className="-rotate-90">
-                            <circle cx={100} cy={100} r={85} fill="none" stroke="#f1f5f9" strokeWidth={22} />
+                            {/* Background ring */}
+                            <circle cx={100} cy={100} r={75} fill="none" stroke="#f1f5f9" strokeWidth={35} />
                             {topReasons.reduce(
                                 (acc, [, count], idx) => {
-                                    const dash = (count / pieTotal) * (2 * Math.PI * 85)
+                                    const circumference = 2 * Math.PI * 75
+                                    const gap = topReasons.length > 1 ? 4 : 0 // gap in px
+                                    const ratio = count / pieTotal
+                                    const rawDash = ratio * circumference
+                                    const dash = rawDash > gap ? rawDash - gap : 0
+                                    
                                     const offset = acc.currentOffset
-                                    acc.elements.push(
-                                        <circle
-                                            key={idx}
-                                            cx={100}
-                                            cy={100}
-                                            r={85}
-                                            fill="none"
-                                            stroke={PIE_COLORS[idx % PIE_COLORS.length]}
-                                            strokeWidth={22}
-                                            strokeDasharray={`${dash} ${2 * Math.PI * 85 - dash}`}
-                                            strokeDashoffset={-offset}
-                                        />
-                                    )
-                                    acc.currentOffset += dash
+                                    if (dash > 0) {
+                                        acc.elements.push(
+                                            <circle
+                                                key={idx}
+                                                cx={100}
+                                                cy={100}
+                                                r={75}
+                                                fill="none"
+                                                stroke={PIE_COLORS[idx % PIE_COLORS.length]}
+                                                strokeWidth={35}
+                                                strokeDasharray={`${dash} ${circumference - dash}`}
+                                                strokeDashoffset={-offset}
+                                            />
+                                        )
+                                    }
+                                    acc.currentOffset += rawDash
                                     return acc
                                 },
                                 { elements: [] as JSX.Element[], currentOffset: 0 }
                             ).elements}
                         </svg>
-                    </div>
-                    <div className="w-full mt-4 space-y-2">
-                        <div className="text-xs text-slate-700 font-black uppercase tracking-widest border-b border-slate-100 pb-2 mb-3">
-                            Top Risk Factors
+                        {/* Center Box */}
+                        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none select-none">
+                            <span className="text-3xl font-black text-slate-800 leading-none">{pieTotal}</span>
+                            <span className="text-xs font-semibold text-slate-400 mt-1 uppercase">Reasons</span>
                         </div>
-                        {topReasons.map(([reason, count], idx) => (
-                            <div
-                                key={reason}
-                                className="flex justify-between items-center px-4 py-3 bg-slate-50 rounded-xl border border-slate-200"
-                            >
-                                <div className="flex items-center gap-2">
-                                    <span
-                                        className="w-3 h-3 rounded-full shrink-0"
-                                        style={{ backgroundColor: PIE_COLORS[idx % PIE_COLORS.length] }}
-                                    />
-                                    <span className="font-bold text-black text-sm">{reason}</span>
-                                </div>
-                                <span className="font-black text-black text-base">{count}</span>
-                            </div>
-                        ))}
                     </div>
-                </>
+                    {/* Legend */}
+                    <div className="flex-1 w-full space-y-3.5 pr-4 md:pl-2">
+                        {topReasons.map(([reason, count], idx) => {
+                            const pct = Math.round((count / pieTotal) * 100)
+                            return (
+                                <div key={reason} className="flex justify-between items-center text-base">
+                                    <div className="flex items-center gap-3">
+                                        <div
+                                            className="w-3.5 h-3.5 rounded-full shrink-0 shadow-sm"
+                                            style={{ backgroundColor: PIE_COLORS[idx % PIE_COLORS.length] }}
+                                        />
+                                        <span className="font-semibold text-slate-500 whitespace-nowrap">{reason}</span>
+                                    </div>
+                                    <span className="font-bold text-slate-800 ml-4">{pct}%</span>
+                                </div>
+                            )
+                        })}
+                    </div>
+                </div>
             ) : (
-                <div className="py-12 text-center w-full">
+                <div className="flex-1 flex flex-col items-center justify-center py-6 text-center">
                     <div className="text-5xl mb-4">🏆</div>
-                    <div className="text-lg font-black text-green-700">Perfect Record</div>
-                    <div className="text-sm font-bold text-slate-500 mt-1">No flagged risk factors!</div>
+                    <div className="text-xl font-bold text-slate-800">Perfect Record</div>
+                    <div className="text-sm font-semibold text-slate-400 mt-1">No flagged risk factors!</div>
                 </div>
             )}
         </div>
