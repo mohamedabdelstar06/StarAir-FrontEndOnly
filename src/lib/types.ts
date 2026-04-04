@@ -69,6 +69,7 @@ export interface CreateUserDto {
 
 export interface UpdateUserDto {
     fullName: string
+    email?: string
     licenseNumber?: string
     medicalClass?: string
     rank?: string

@@ -18,7 +18,7 @@ function MetricCard({ value, label, icon, color = 'text-primary-600' }: {
     value: number | string; label: string; icon: React.ReactNode; color?: string
 }) {
     return (
-        <div className="metric-card">
+        <div className="metric-card shadow-md shadow-slate-200/50 hover:shadow-lg hover:-translate-y-1">
             <div className="flex items-center justify-between">
                 <span className="p-2 rounded-lg bg-slate-100">{icon}</span>
             </div>
@@ -170,7 +170,7 @@ export function DashboardPage() {
     const goRate = totalAssessments > 0 ? Math.round((stats.goCount / totalAssessments) * 100) : 0
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6 w-full overflow-hidden">
             {/* Top metrics */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 <MetricCard value={stats.totalPilots} label="Total Pilots" icon={<Users size={18} className="text-primary-500" />} />
@@ -179,17 +179,17 @@ export function DashboardPage() {
                 <MetricCard value={stats.noGoCount} label="No-Go" icon={<XCircle size={18} className="text-red-600" />} color="text-red-600" />
             </div>
 
-            {/* 2/3 + 1/3 grid */}
-            <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+            {/* Chart grid: stacked on mobile, 2/3+1/3 on XL */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
 
                 {/* LEFT 2/3 */}
-                <div className="xl:col-span-2 space-y-6">
+                <div className="lg:col-span-2 space-y-4 sm:space-y-6 min-w-0">
 
                     {/* Smooth curve chart */}
                     <AdvancedTrendChart assessments={allAssessments} flights={flights} title="System Wide Trend Report" />
 
                     {/* Pilot performance bars */}
-                    <div className="glass-card p-6">
+                    <div className="glass-card p-4 sm:p-6 shadow-md shadow-slate-200/50">
                         <h2 className="text-xl font-black text-black mb-6 flex items-center gap-2">
                             <BarChart3 size={22} className="text-primary-500" /> Pilot Performance
                         </h2>
@@ -198,11 +198,11 @@ export function DashboardPage() {
                 </div>
 
                 {/* RIGHT 1/3 */}
-                <div className="xl:col-span-1 space-y-6">
+                <div className="lg:col-span-1 space-y-4 sm:space-y-6 min-w-0">
                     <SystemPieChart assessments={allAssessments} />
 
                     {stats.pendingPilots > 0 && (
-                        <div className="glass-card p-5 border-2 border-amber-300 bg-amber-50">
+                        <div className="glass-card p-5 border-2 border-amber-300 bg-amber-50 shadow-md shadow-amber-200/50">
                             <div className="flex items-start gap-3 text-amber-800">
                                 <AlertTriangle size={20} className="shrink-0 mt-0.5" />
                                 <div>
@@ -215,7 +215,7 @@ export function DashboardPage() {
                         </div>
                     )}
 
-                    <div className="glass-card overflow-hidden">
+                    <div className="glass-card overflow-hidden shadow-md shadow-slate-200/50">
                         <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200 bg-slate-50">
                             <h2 className="text-base font-bold text-black uppercase tracking-widest">Recent Activity</h2>
                             <button onClick={load} className="btn-icon"><RefreshCw size={14} /></button>

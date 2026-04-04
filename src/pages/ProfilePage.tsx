@@ -232,11 +232,11 @@ export function ProfilePage() {
 
             {/* Pilot-only: Trip Analytics Charts */}
             {user?.roles.includes('Pilot') && (
-                <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-                    <div className="xl:col-span-2">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+                    <div className="lg:col-span-2 min-w-0">
                         <AdvancedTrendChart assessments={assessments} flights={flights} title="My Daily Trips Trend" />
                     </div>
-                    <div className="xl:col-span-1">
+                    <div className="lg:col-span-1 min-w-0">
                         <SystemPieChart assessments={assessments} />
                     </div>
                 </div>

@@ -124,6 +124,7 @@ export function SmartWatchPanel({ tripId, readingId, showEntryForm = true, onSub
     const [analysis, setAnalysis] = useState<SmartWatchAnalysisDto | null>(null)
     const [loadingData, setLoadingData] = useState(true)
     const [showForm, setShowForm] = useState(false)
+    const [isSearching, setIsSearching] = useState(false)
     const [saving, setSaving] = useState(false)
     const [error, setError] = useState('')
     const [success, setSuccess] = useState('')
@@ -254,19 +255,32 @@ export function SmartWatchPanel({ tripId, readingId, showEntryForm = true, onSub
                 <div>
                     <button
                         type="button"
-                        onClick={() => setShowForm(v => !v)}
+                        onClick={() => {
+                            if (!showForm && !isSearching) {
+                                setIsSearching(true)
+                                setTimeout(() => {
+                                    setIsSearching(false)
+                                    setShowForm(true)
+                                }, 2500)
+                            } else {
+                                setShowForm(false)
+                            }
+                        }}
+                        disabled={isSearching}
                         className={clsx(
                             'w-full flex items-center justify-between px-5 py-4 rounded-2xl border-2 font-bold text-sm transition-all',
-                            showForm
-                                ? 'bg-slate-100 border-slate-300 text-black'
-                                : 'bg-rose-600 border-rose-600 text-white hover:bg-rose-700 shadow-lg shadow-rose-200'
+                            isSearching
+                                ? 'bg-indigo-50 border-indigo-200 text-indigo-600'
+                                : showForm
+                                    ? 'bg-slate-100 border-slate-300 text-black'
+                                    : 'bg-rose-600 border-rose-600 text-white hover:bg-rose-700 shadow-lg shadow-rose-200'
                         )}
                     >
                         <span className="flex items-center gap-2">
-                            <Watch size={18} />
-                            {showForm ? 'Close Manual Entry Form' : (reading ? '+ Add New Health Reading' : '+ Enter Health Data Manually')}
+                            {isSearching ? <RefreshCw size={18} className="animate-spin" /> : <Watch size={18} />}
+                            {isSearching ? 'Scanning nearby devices & apps...' : showForm ? 'Close Manual Entry Form' : (reading ? '+ Add New Health Reading' : '+ Scan for Watch / Add Health Data')}
                         </span>
-                        {showForm ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                        {!isSearching && (showForm ? <ChevronUp size={18} /> : <ChevronDown size={18} />)}
                     </button>
 
                     {/* ── Manual Entry Form ── */}
@@ -274,12 +288,12 @@ export function SmartWatchPanel({ tripId, readingId, showEntryForm = true, onSub
                         <form onSubmit={handleSubmit} className="mt-4 border-2 border-slate-200 rounded-2xl overflow-hidden bg-white shadow-sm animate-slide-up">
                             {/* Form Header */}
                             <div className="px-5 py-4 bg-gradient-to-r from-rose-600 to-pink-600 text-white flex items-center gap-3">
-                                <div className="p-2 bg-white/20 rounded-xl">
-                                    <Watch size={20} />
+                                <div className="p-2 bg-white/20 rounded-xl flex-shrink-0">
+                                    <AlertTriangle size={20} />
                                 </div>
                                 <div>
-                                    <div className="font-black text-base">Manual Health Entry</div>
-                                    <div className="text-xs text-white/80">Enter values from your smartwatch app — no device connection needed</div>
+                                    <div className="font-black text-sm uppercase tracking-wider mb-1">No Devices Detected Automatically</div>
+                                    <div className="text-xs text-white/90">Please enter values manually from your Garmin/Apple/Fitbit app.</div>
                                 </div>
                             </div>
 

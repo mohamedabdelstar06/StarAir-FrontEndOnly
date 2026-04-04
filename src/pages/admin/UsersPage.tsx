@@ -1,16 +1,24 @@
 import { useEffect, useState } from 'react'
 import { usersApi } from '../../lib/apiClient'
 import type { UserResponseDto, CreateUserDto, UpdateUserDto } from '../../lib/types'
-import { Plus, Search, UserCog, Loader2, X, RefreshCw, ToggleLeft, ToggleRight, Edit } from 'lucide-react'
+import { Plus, Search, UserCog, Loader2, X, RefreshCw, Trash2, Edit, Power } from 'lucide-react'
 import clsx from 'clsx'
 
 const ROLES = ['Pilot', 'Admin']
 const MEDICAL_CLASSES = ['Class 1', 'Class 2', 'Class 3']
 
 function StatusBadge({ status }: { status: string }) {
-    if (status === 'Active') return <span className="badge-active">Active</span>
-    if (status === 'Pending') return <span className="badge-pending">Pending</span>
-    return <span className="badge-inactive">Inactive</span>
+    if (status === 'Active')
+        return <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-black bg-green-100 text-green-700 border-2 border-green-300">
+            <span className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse" /> Active
+        </span>
+    if (status === 'Pending')
+        return <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-black bg-amber-100 text-amber-700 border-2 border-amber-300">
+            <span className="w-2.5 h-2.5 rounded-full bg-amber-500" /> Pending
+        </span>
+    return <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-black bg-red-100 text-red-700 border-2 border-red-300">
+        <span className="w-2.5 h-2.5 rounded-full bg-red-500" /> Inactive
+    </span>
 }
 
 type FormMode = 'create' | 'edit'
@@ -45,7 +53,7 @@ export function UsersPage() {
     const openCreate = () => { setMode('create'); setForm(EMPTY_FORM); setFormError(null); setShowModal(true) }
     const openEdit = (u: UserResponseDto) => {
         setMode('edit'); setEditId(u.id)
-        setUpdateForm({ fullName: u.fullName, licenseNumber: u.licenseNumber, medicalClass: u.medicalClass, rank: u.rank, totalFlightHours: u.totalFlightHours })
+        setUpdateForm({ fullName: u.fullName, email: u.email, licenseNumber: u.licenseNumber, medicalClass: u.medicalClass, rank: u.rank, totalFlightHours: u.totalFlightHours })
         setFormError(null); setShowModal(true)
     }
 
@@ -64,6 +72,11 @@ export function UsersPage() {
         try { await usersApi.toggleStatus(id); load() } catch { }
     }
 
+    const handleDelete = async (id: string, name: string) => {
+        if (!confirm(`Are you sure you want to permanently delete "${name}"? This action cannot be undone.`)) return
+        try { await usersApi.delete(id); load() } catch { }
+    }
+
     return (
         <div className="space-y-4">
             {/* Toolbar */}
@@ -80,7 +93,7 @@ export function UsersPage() {
                         </button>
                     ))}
                 </div>
-                <button onClick={openCreate} className="btn-primary gap-2"><Plus size={16} /> Add User</button>
+                <button onClick={openCreate} className="btn-primary gap-2 text-sm sm:text-base"><Plus size={16} /> <span className="hidden sm:inline">Add</span> User</button>
                 <button onClick={load} className="btn-icon"><RefreshCw size={16} /></button>
             </div>
 
@@ -115,10 +128,40 @@ export function UsersPage() {
                                         <td className="font-mono text-sm text-slate-600 font-bold">{u.licenseNumber ?? '—'}</td>
                                         <td><StatusBadge status={u.status} /></td>
                                         <td>
-                                            <div className="flex items-center gap-1">
-                                                <button onClick={() => openEdit(u)} className="p-1.5 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors" title="Edit User"><Edit size={18} /></button>
-                                                <button onClick={() => handleToggle(u.id)} className="btn-icon" title="Toggle status">
-                                                    {u.status === 'Active' ? <ToggleRight size={16} className="text-green-400" /> : <ToggleLeft size={16} className="text-slate-500" />}
+                                            <div className="flex items-center gap-2">
+                                                {/* Edit Button — Blue, clear */}
+                                                <button
+                                                    onClick={() => openEdit(u)}
+                                                    className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 transition-colors font-bold text-sm"
+                                                    title="Edit User"
+                                                >
+                                                    <Edit size={16} />
+                                                    <span className="hidden lg:inline">Edit</span>
+                                                </button>
+
+                                                {/* Toggle Status — Green/Red, prominent */}
+                                                <button
+                                                    onClick={() => handleToggle(u.id)}
+                                                    className={clsx(
+                                                        'flex items-center gap-1.5 px-3 py-2 rounded-lg border transition-colors font-bold text-sm',
+                                                        u.status === 'Active'
+                                                            ? 'bg-green-50 text-green-700 border-green-200 hover:bg-green-100'
+                                                            : 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100'
+                                                    )}
+                                                    title={u.status === 'Active' ? 'Deactivate User' : 'Activate User'}
+                                                >
+                                                    <Power size={16} />
+                                                    <span className="hidden lg:inline">{u.status === 'Active' ? 'Deactivate' : 'Activate'}</span>
+                                                </button>
+
+                                                {/* Delete — Red, bold, clear */}
+                                                <button
+                                                    onClick={() => handleDelete(u.id, u.fullName)}
+                                                    className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-red-50 text-red-700 hover:bg-red-600 hover:text-white border border-red-200 hover:border-red-600 transition-colors font-bold text-sm"
+                                                    title="Delete User"
+                                                >
+                                                    <Trash2 size={16} />
+                                                    <span className="hidden lg:inline">Delete</span>
                                                 </button>
                                             </div>
                                         </td>
@@ -132,9 +175,9 @@ export function UsersPage() {
 
             {/* Modal */}
             {showModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-                    <div className="glass-card w-full max-w-3xl p-6 transition-none shadow-2xl">
-                        <div className="flex items-center justify-between mb-6 bg-primary-50 px-6 py-4 rounded-t-2xl -mx-6 -mt-6 border-b border-slate-200">
+                <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-sm">
+                    <div className="glass-card w-full sm:max-w-3xl p-4 sm:p-6 transition-none shadow-2xl rounded-t-2xl sm:rounded-2xl max-h-[90vh] overflow-y-auto">
+                        <div className="flex items-center justify-between mb-4 sm:mb-6 bg-primary-50 px-4 sm:px-6 py-3 sm:py-4 rounded-t-2xl -mx-4 sm:-mx-6 -mt-4 sm:-mt-6 border-b border-slate-200">
                             <h2 className="text-xl font-black text-black flex items-center gap-2">
                                 <UserCog size={22} className="text-primary-500" />
                                 {mode === 'create' ? 'Add New User' : 'Edit User'}
@@ -189,9 +232,13 @@ export function UsersPage() {
                                 </>
                             ) : (
                                 <>
-                                    <div className="space-y-1.5 md:col-span-2">
-                                        <label className="text-sm font-bold text-black uppercase tracking-widest">Full Name *</label>
-                                        <input required value={updateForm.fullName} onChange={e => setUpdateForm(f => ({ ...f, fullName: e.target.value }))} className="w-full bg-white border-2 border-slate-300 rounded-xl px-4 py-3 text-black outline-none focus:border-primary-500 transition-all text-base" />
+                                    <div>
+                                        <label className="label">Email</label>
+                                        <input type="email" value={updateForm.email ?? ''} onChange={e => setUpdateForm(f => ({ ...f, email: e.target.value }))} className="input" placeholder="user@starair.com" />
+                                    </div>
+                                    <div>
+                                        <label className="label">Full Name *</label>
+                                        <input required value={updateForm.fullName} onChange={e => setUpdateForm(f => ({ ...f, fullName: e.target.value }))} className="input" />
                                     </div>
                                     <div className="grid grid-cols-2 gap-3">
                                         <div>
@@ -218,7 +265,7 @@ export function UsersPage() {
                                     </div>
                                 </>
                             )}
-                            <div className="md:col-span-2 flex items-center justify-between border-t border-slate-200 pt-5 mt-2">
+                            <div className="md:col-span-2 flex flex-col sm:flex-row items-start sm:items-center justify-between border-t border-slate-200 pt-4 sm:pt-5 mt-2 gap-3">
                                 <p className="text-sm font-semibold text-slate-500">
                                     {mode === 'create' ? 'A welcome email will be sent to activate their account.' : ''}
                                 </p>

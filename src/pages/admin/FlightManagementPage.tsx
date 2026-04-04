@@ -4,9 +4,11 @@ import type { FlightTripResponseDto, UserResponseDto, CreateFlightTripDto, Updat
 import { FLIGHT_CATEGORIES, getAircraftByCategory } from '../../lib/aircraftData'
 import { searchAerodromes, type Aerodrome } from '../../lib/aerodromeData'
 import { useNotificationStore } from '../../stores/notificationStore'
-import { Plus, Plane, Trash2, Calendar, User, RefreshCw, X, ShieldCheck, ClipboardCheck, Brain, Eye, Edit } from 'lucide-react'
+import { Plus, Plane, Trash2, Calendar, User, RefreshCw, X, ShieldCheck, ClipboardCheck, Brain, Eye, Edit, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import clsx from 'clsx'
+
+const ITEMS_PER_PAGE = 8
 
 // ─── Aerodrome Search Dropdown Component ─────────────────────────────────
 function AerodromeDropdown({ value, onChange, label }: {
@@ -241,10 +243,18 @@ export function FlightManagementPage() {
         return cat ? `${cat.emoji} ${cat.label}` : key
     }
 
+    // Pagination state
+    const [currentPage, setCurrentPage] = useState(1)
+    const totalPages = Math.max(1, Math.ceil(flights.length / ITEMS_PER_PAGE))
+    const paginatedFlights = flights.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE)
+
+    // Reset to page 1 when flights change
+    useEffect(() => { setCurrentPage(1) }, [flights.length])
+
     return (
         <div className="space-y-6">
-            <div className="flex items-center justify-between">
-                <h1 className="text-2xl font-bold text-black flex items-center gap-3">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <h1 className="text-xl sm:text-2xl font-bold text-black flex items-center gap-3">
                     <Plane className="text-primary-500" />
                     Trip Assignments
                 </h1>
@@ -259,22 +269,17 @@ export function FlightManagementPage() {
             {loading ? (
                 <div className="flex justify-center p-12"><RefreshCw className="animate-spin text-primary-500" /></div>
             ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {flights.map(f => {
-                        const isReviewable = f.status === 'Completed' || f.status === 'Cleared'
+                <>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5">
+                    {paginatedFlights.map(f => {
                         return (
-                        <div key={f.id} className={clsx('glass-card p-5 relative group overflow-hidden flex flex-col gap-4', isReviewable && 'cursor-pointer hover:shadow-lg hover:border-primary-300 transition-all')} onClick={isReviewable ? () => navigate(`/trips/${f.id}`) : undefined}>
+                        <div key={f.id} className="bg-white rounded-2xl p-5 relative group overflow-hidden flex flex-col gap-4 cursor-pointer shadow-xl shadow-slate-300/80 hover:shadow-2xl hover:shadow-slate-400 hover:-translate-y-1 transition-all border-2 border-blue-400/60" onClick={() => navigate(`/trips/${f.id}`)}>
                             {/* Status + Delete */}
                             <div className="flex justify-between items-start">
                                 <div className={clsx('badge text-xs', getStatusBadge(f.status))}>
                                     {f.status}
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    {isReviewable && (
-                                        <div title="View Assessment Report" className="p-1.5 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors">
-                                            <Eye size={18} />
-                                        </div>
-                                    )}
                                     <button onClick={(e) => { e.stopPropagation(); openEditTrip(f) }} className="p-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors" title="Edit Trip">
                                         <Edit size={18} />
                                     </button>
@@ -291,7 +296,7 @@ export function FlightManagementPage() {
 
                             {/* Category + Aircraft */}
                             <div className="flex flex-col gap-1">
-                                <span className="text-sm font-semibold text-black">{getCategoryLabel(f.flightCategory)}</span>
+                                <span className="text-base font-semibold text-black">{getCategoryLabel(f.flightCategory)}</span>
                                 <span className="text-sm text-slate-600">{f.aircraftType}</span>
                             </div>
 
@@ -304,12 +309,12 @@ export function FlightManagementPage() {
                             {/* Route */}
                             <div className="flex items-center justify-between text-sm text-black bg-slate-50 px-4 py-3 rounded-xl border border-slate-200">
                                 <div className="flex-1 text-center">
-                                    <div className="text-[10px] text-slate-500 mb-0.5 uppercase tracking-widest">Origin</div>
+                                    <div className="text-xs font-bold text-slate-800 mb-0.5 uppercase tracking-widest">Origin</div>
                                     <div className="font-black text-lg text-black">{f.departure}</div>
                                 </div>
                                 <div className="px-3 text-primary-500 font-bold">→</div>
                                 <div className="flex-1 text-center">
-                                    <div className="text-[10px] text-slate-500 mb-0.5 uppercase tracking-widest">Dest</div>
+                                    <div className="text-xs font-bold text-slate-800 mb-0.5 uppercase tracking-widest">Dest</div>
                                     <div className="font-black text-lg text-black">{f.arrival}</div>
                                 </div>
                             </div>
@@ -322,7 +327,7 @@ export function FlightManagementPage() {
 
                             {/* Assessments indicator */}
                             <div className="pt-3 border-t border-slate-200">
-                                <div className="flex items-center justify-between mb-3">
+                                <div className="flex items-center justify-between">
                                     <span className="text-sm font-black text-black uppercase tracking-widest">Assessments</span>
                                     <div className="flex gap-2 items-center">
                                         {[
@@ -330,19 +335,13 @@ export function FlightManagementPage() {
                                             { done: !!f.paveAssessmentId, icon: ClipboardCheck, label: 'PAVE' },
                                             { done: !!f.decideSessionId, icon: Brain, label: 'DECIDE' },
                                         ].map(({ done, icon: Icon, label }) => (
-                                            <div key={label} title={label} className={clsx('w-7 h-7 rounded-full flex items-center justify-center',
+                                            <div key={label} title={label} className={clsx('w-9 h-9 rounded-full flex items-center justify-center',
                                                 done ? 'bg-green-100 text-green-600' : 'bg-slate-100 text-slate-400')}>
-                                                <Icon size={14} />
+                                                <Icon size={18} />
                                             </div>
                                         ))}
                                     </div>
                                 </div>
-                                {isReviewable && (
-                                    <div className="flex items-center gap-2 px-3 py-2 bg-blue-50 rounded-xl border border-blue-200">
-                                        <Eye size={16} className="text-blue-600" />
-                                        <span className="text-sm font-black text-blue-700 uppercase tracking-wider">View Full Assessment Report</span>
-                                    </div>
-                                )}
                             </div>
                         </div>
                         )
@@ -355,14 +354,51 @@ export function FlightManagementPage() {
                         </div>
                     )}
                 </div>
+
+                {/* Pagination */}
+                {totalPages > 1 && (
+                    <div className="flex items-center justify-center gap-3 pt-4">
+                        <button
+                            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                            disabled={currentPage === 1}
+                            className={clsx('flex items-center gap-1 px-4 py-2.5 rounded-xl border-2 font-bold text-sm transition-all',
+                                currentPage === 1 ? 'border-slate-200 text-slate-400 cursor-not-allowed' : 'border-slate-300 text-black hover:bg-slate-100')}
+                        >
+                            <ChevronLeft size={16} /> Previous
+                        </button>
+                        <div className="flex items-center gap-1">
+                            {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                                <button
+                                    key={page}
+                                    onClick={() => setCurrentPage(page)}
+                                    className={clsx('w-10 h-10 rounded-xl font-bold text-sm transition-all',
+                                        page === currentPage
+                                            ? 'bg-primary-600 text-white shadow-md'
+                                            : 'text-slate-600 hover:bg-slate-100 border border-slate-200')}
+                                >
+                                    {page}
+                                </button>
+                            ))}
+                        </div>
+                        <button
+                            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                            disabled={currentPage === totalPages}
+                            className={clsx('flex items-center gap-1 px-4 py-2.5 rounded-xl border-2 font-bold text-sm transition-all',
+                                currentPage === totalPages ? 'border-slate-200 text-slate-400 cursor-not-allowed' : 'border-slate-300 text-black hover:bg-slate-100')}
+                        >
+                            Next <ChevronRight size={16} />
+                        </button>
+                    </div>
+                )}
+                </>
             )}
 
             {/* Create Trip Modal */}
             {showModal && (
-                <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/40 backdrop-blur-sm p-4 pt-10 overflow-y-auto">
-                    <div className="glass-card w-full max-w-4xl overflow-hidden border border-slate-300 shadow-2xl">
+                <div className="fixed inset-0 z-50 flex items-end sm:items-start justify-center bg-black/40 backdrop-blur-sm p-0 sm:p-4 sm:pt-10 overflow-y-auto">
+                    <div className="glass-card w-full sm:max-w-4xl overflow-hidden border border-slate-300 shadow-2xl rounded-t-2xl sm:rounded-2xl max-h-[95vh] sm:max-h-none overflow-y-auto">
                         {/* Header */}
-                        <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-primary-50">
+                        <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-200 flex items-center justify-between bg-primary-50">
                             <h2 className="text-xl font-bold text-black flex items-center gap-2">
                                 <Plane size={20} className="text-primary-500" /> {mode === 'create' ? 'Create New Trip' : 'Edit Trip'}
                             </h2>
@@ -371,7 +407,7 @@ export function FlightManagementPage() {
                             </button>
                         </div>
 
-                        <form onSubmit={handleCreate} className="p-6">
+                        <form onSubmit={handleCreate} className="p-4 sm:p-6">
                             {formError && (
                                 <div className="px-4 py-3 mb-5 rounded-xl bg-red-50 border border-red-200 text-red-700 text-base">
                                     {formError}

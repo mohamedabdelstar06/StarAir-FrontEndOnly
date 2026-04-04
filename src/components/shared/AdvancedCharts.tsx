@@ -73,39 +73,44 @@ export function AdvancedTrendChart({
     const allDates = Array.from(datesSet).sort()
 
     const days: DayTrend[] = []
+    
+    let baseStartDate = new Date()
     if (allDates.length > 0) {
-        const startDate = new Date(allDates[0])
-        const endDate = new Date(allDates[allDates.length - 1])
-        const now = new Date()
-        if (endDate < now) endDate.setTime(now.getTime())
-        let curr = new Date(startDate)
-        while (curr <= endDate) {
-            const dateStr = getLocalDate(curr)
-            if (dateStr) {
-                const dStr =
-                    curr.getDate().toString().padStart(2, '0') +
-                    '. ' +
-                    curr.toLocaleString('default', { month: 'short' })
-                const dayName = curr.toLocaleString('default', { weekday: 'short' }).toUpperCase()
-                days.push({ date: dateStr, shortDate: dStr, dayName, go: 0, caution: 0, nogo: 0, pending: 0, total: 0 })
-            }
-            curr.setDate(curr.getDate() + 1)
+        baseStartDate = new Date(allDates[0])
+    }
+    baseStartDate.setHours(0, 0, 0, 0)
+    
+    let baseEndDate = new Date()
+    baseEndDate.setHours(0, 0, 0, 0)
+    
+    // Ensure we have at least 1 full week (6 days after start)
+    const minEndDate = new Date(baseStartDate)
+    minEndDate.setDate(baseStartDate.getDate() + 6)
+    
+    if (baseEndDate < minEndDate) {
+        baseEndDate = minEndDate
+    }
+    
+    // Ensure the total span is a multiple of 7
+    const diffTime = Math.abs(baseEndDate.getTime() - baseStartDate.getTime())
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1
+    const remainder = diffDays % 7
+    if (remainder !== 0) {
+        baseEndDate.setDate(baseEndDate.getDate() + (7 - remainder))
+    }
+
+    let curr = new Date(baseStartDate)
+    while (curr <= baseEndDate) {
+        const dateStr = getLocalDate(curr)
+        if (dateStr) {
+            const dStr =
+                curr.getDate().toString().padStart(2, '0') +
+                '. ' +
+                curr.toLocaleString('default', { month: 'short' })
+            const dayName = curr.toLocaleString('default', { weekday: 'short' }).toUpperCase()
+            days.push({ date: dateStr, shortDate: dStr, dayName, go: 0, caution: 0, nogo: 0, pending: 0, total: 0 })
         }
-    } else {
-        const now = new Date()
-        for (let i = 6; i >= 0; i--) {
-            const d = new Date(now)
-            d.setDate(now.getDate() - i)
-            const dateStr = getLocalDate(d)
-            if (dateStr) {
-                const dStr =
-                    d.getDate().toString().padStart(2, '0') +
-                    '. ' +
-                    d.toLocaleString('default', { month: 'short' })
-                const dayName = d.toLocaleString('default', { weekday: 'short' }).toUpperCase()
-                days.push({ date: dateStr, shortDate: dStr, dayName, go: 0, caution: 0, nogo: 0, pending: 0, total: 0 })
-            }
-        }
+        curr.setDate(curr.getDate() + 1)
     }
 
     const matchedAssessmentIds = new Set<number>()
@@ -127,14 +132,14 @@ export function AdvancedTrendChart({
         if (pave?.result) results.push(pave.result)
 
         let finalResult = 'Pending'
-        if (results.includes('No-Go')) finalResult = 'No-Go'
+        if (results.includes('NoGo') || results.includes('No-Go')) finalResult = 'NoGo'
         else if (results.includes('Caution')) finalResult = 'Caution'
         else if (results.includes('Go')) finalResult = 'Go'
 
         bucket.total++
         if (finalResult === 'Go') bucket.go++
         else if (finalResult === 'Caution') bucket.caution++
-        else if (finalResult === 'No-Go') bucket.nogo++
+        else if (finalResult === 'NoGo') bucket.nogo++
         else bucket.pending++
     }
 
@@ -150,20 +155,24 @@ export function AdvancedTrendChart({
         else bucket.nogo++
     }
 
-    const [visibleEndIdx, setVisibleEndIdx] = useState(days.length - 1)
+    const [pageOffset, setPageOffset] = useState(0) // 0 = newest 7 days
     const DAYS_TO_SHOW = 7
-    const visibleStartIdx = Math.max(0, visibleEndIdx - DAYS_TO_SHOW + 1)
+    const maxOffset = Math.max(0, Math.floor(days.length / DAYS_TO_SHOW) - 1)
+    const currentOffset = Math.min(pageOffset, maxOffset)
+    
+    // offset 0 is the right-most (newest) chunk
+    const visibleStartIdx = days.length - (currentOffset + 1) * DAYS_TO_SHOW
+    const visibleEndIdx = visibleStartIdx + DAYS_TO_SHOW - 1
     const visibleDays = days.slice(visibleStartIdx, visibleEndIdx + 1)
 
-    const handlePrev = () =>
-        setVisibleEndIdx((prev) => Math.max(DAYS_TO_SHOW - 1, prev - DAYS_TO_SHOW))
-    const handleNext = () =>
-        setVisibleEndIdx((prev) => Math.min(days.length - 1, prev + DAYS_TO_SHOW))
+    const handlePrev = () => setPageOffset(p => Math.min(maxOffset, p + 1)) // Move to older records (Left)
+    const handleNext = () => setPageOffset(p => Math.max(0, p - 1))         // Move to newer records (Right)
 
     const maxTotal = Math.max(...visibleDays.map((d) => d.total), 1)
-    // ── MUCH TALLER chart ──
-    const chartHeight = 420
-    const chartPad = 30
+    // ── Responsive chart height ──
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 640
+    const chartHeight = isMobile ? 260 : 420
+    const chartPad = isMobile ? 20 : 30
     const w = 1000
     const dx = visibleDays.length > 1 ? w / (visibleDays.length - 1) : 0
 
@@ -212,54 +221,54 @@ export function AdvancedTrendChart({
     const selectedDayData = selectedDate ? visibleDays.find(d => d.date === selectedDate) : null
 
     return (
-        <div className="bg-white rounded-2xl shadow-lg border-2 border-slate-100 overflow-visible font-sans">
+        <div className="bg-white rounded-2xl shadow-lg border-2 border-slate-100 overflow-hidden font-sans w-full">
             {/* Header */}
-            <div className="bg-slate-900 border-b-4 border-primary-500 px-6 py-5 flex items-center justify-between text-white rounded-t-2xl">
-                <div>
-                    <h2 className="text-xl font-black tracking-wide italic">{title}</h2>
-                    <div className="flex items-center gap-3 mt-2">
+            <div className="bg-slate-900 border-b-4 border-primary-500 px-4 sm:px-6 py-4 sm:py-5 flex flex-wrap items-center justify-between gap-3 text-white rounded-t-2xl">
+                <div className="min-w-0">
+                    <h2 className="text-base sm:text-xl font-black tracking-wide italic truncate">{title}</h2>
+                    <div className="flex items-center gap-2 sm:gap-3 mt-2">
                         <button
                             onClick={handlePrev}
                             disabled={visibleStartIdx === 0}
-                            className="hover:text-primary-300 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                            className="hover:text-primary-300 disabled:opacity-30 disabled:cursor-not-allowed transition-colors p-1"
                         >
-                            <ChevronLeft size={22} />
+                            <ChevronLeft size={18} />
                         </button>
-                        <span className="text-sm font-semibold tracking-wider text-slate-300">
+                        <span className="text-xs sm:text-sm font-semibold tracking-wider text-slate-300 whitespace-nowrap">
                             {dateRangeStr}
                         </span>
                         <button
                             onClick={handleNext}
                             disabled={visibleEndIdx >= days.length - 1}
-                            className="hover:text-primary-300 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                            className="hover:text-primary-300 disabled:opacity-30 disabled:cursor-not-allowed transition-colors p-1"
                         >
-                            <ChevronRight size={22} />
+                            <ChevronRight size={18} />
                         </button>
                     </div>
                 </div>
-                <div className="text-right">
-                    <div className="text-xs font-semibold text-slate-400 uppercase tracking-widest">Total in range</div>
-                    <div className="text-4xl font-black">{totalInRange}</div>
+                <div className="text-right shrink-0">
+                    <div className="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-widest">Total in range</div>
+                    <div className="text-2xl sm:text-4xl font-black">{totalInRange}</div>
                 </div>
             </div>
 
             {/* Legend */}
-            <div className="flex justify-center gap-8 py-4 border-b border-slate-100 bg-white">
+            <div className="flex flex-wrap justify-center gap-3 sm:gap-8 py-3 sm:py-4 px-4 border-b border-slate-100 bg-white">
                 {[
                     { color: COLORS.go, label: 'Go' },
                     { color: COLORS.caution, label: 'Caution' },
                     { color: COLORS.nogo, label: 'No-Go' },
                     { color: COLORS.pending, label: 'Pending' },
                 ].map(({ color, label }) => (
-                    <div key={label} className="flex items-center gap-2">
-                        <span className="w-8 h-1.5 rounded-full inline-block" style={{ backgroundColor: color }} />
-                        <span className="text-sm font-bold text-black">{label}</span>
+                    <div key={label} className="flex items-center gap-1.5 sm:gap-2">
+                        <span className="w-5 sm:w-8 h-1 sm:h-1.5 rounded-full inline-block" style={{ backgroundColor: color }} />
+                        <span className="text-xs sm:text-sm font-bold text-black">{label}</span>
                     </div>
                 ))}
             </div>
 
             {/* Chart Area */}
-            <div className="px-6 pt-8 pb-4 bg-white relative">
+            <div className="px-2 sm:px-6 pt-4 sm:pt-8 pb-2 sm:pb-4 bg-white relative overflow-hidden">
                 <div className="relative" style={{ height: chartHeight }}>
                     {/* Y-axis scale labels */}
                     <div className="absolute left-0 inset-y-0 flex flex-col justify-between pointer-events-none" style={{ paddingTop: chartPad, paddingBottom: chartPad }}>
@@ -394,11 +403,11 @@ export function AdvancedTrendChart({
                                 transform: 'translateX(-50%) translateY(-20px)',
                             }}
                         >
-                            <div className="bg-white rounded shadow-xl border border-slate-200 px-4 py-3 min-w-[120px]">
+                            <div className="bg-white rounded shadow-xl border border-slate-200 px-3 py-2 sm:px-4 sm:py-3 min-w-[90px] sm:min-w-[120px]">
                                 <div className="text-sm text-slate-700 font-semibold mb-3">
                                     {visibleDays[hoveredIdx].dayName}
                                 </div>
-                                <div className="flex flex-col gap-2.5 text-base font-medium tracking-wide">
+                                <div className="flex flex-col gap-1.5 sm:gap-2.5 text-xs sm:text-base font-medium tracking-wide">
                                     <div className="flex items-center gap-2" style={{ color: COLORS.go }}>
                                         <span>go</span>
                                         <span>:</span>
@@ -432,14 +441,14 @@ export function AdvancedTrendChart({
                             key={i}
                             onClick={() => setSelectedDate(d.date === selectedDate ? null : d.date)}
                             className={clsx(
-                                'text-xs font-bold tracking-widest text-center flex-1 py-2 rounded-lg cursor-pointer transition-all',
+                                'text-[10px] sm:text-xs font-bold tracking-wide sm:tracking-widest text-center flex-1 py-1.5 sm:py-2 rounded-lg cursor-pointer transition-all min-w-0',
                                 selectedDate === d.date
                                     ? 'bg-primary-600 text-white shadow-md'
                                     : 'text-black hover:bg-slate-100'
                             )}
                         >
-                            <div>{d.dayName}</div>
-                            <div className="text-[9px] font-semibold mt-0.5 opacity-60">{d.shortDate}</div>
+                            <div className="truncate">{d.dayName}</div>
+                            <div className="text-[8px] sm:text-[9px] font-semibold mt-0.5 opacity-60 truncate">{d.shortDate}</div>
                         </div>
                     ))}
                 </div>
@@ -449,7 +458,7 @@ export function AdvancedTrendChart({
                 DRILL-DOWN: Trips for selected day — BELOW the chart
                ═════════════════════════════════════════════════════════════════ */}
             {selectedDate && (
-                <div className="border-t-2 border-primary-500 bg-slate-50 px-6 py-5 rounded-b-2xl">
+                <div className="border-t-2 border-primary-500 bg-slate-50 px-3 sm:px-6 py-4 sm:py-5 rounded-b-2xl">
                     <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-3 flex-wrap">
                             <Calendar size={18} className="text-primary-500" />
@@ -556,7 +565,7 @@ export function SystemPieChart({
     const PIE_COLORS = ['#ef4444', '#f97316', '#f59e0b', '#eab308', '#84cc16', '#06b6d4']
 
     return (
-        <div className="bg-white rounded-[24px] shadow-sm border border-slate-200 px-6 py-8 flex flex-col h-full font-sans">
+        <div className="bg-white rounded-[24px] shadow-sm border border-slate-200 px-4 sm:px-6 py-6 sm:py-8 flex flex-col h-full font-sans overflow-hidden w-full">
             <div className="mb-4 text-center md:text-left">
                 <h2 className="text-2xl font-bold text-slate-800 tracking-tight">Reasons for Missing "OK"</h2>
                 <div className="text-base text-slate-500 mt-1 font-medium select-none">Breakdown of reported risks</div>

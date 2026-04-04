@@ -14,23 +14,32 @@
     scroll-behavior: auto;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    font-size: 20px; /* Increased from 18px to make everything larger */
+    /* Responsive base font: 16px mobile → 18px tablet → 20px desktop */
+    font-size: 16px;
+  }
+
+  @media (min-width: 768px) {
+    html { font-size: 18px; }
+  }
+  @media (min-width: 1280px) {
+    html { font-size: 20px; }
   }
 
   body {
     @apply bg-surface-light text-black font-sans transition-none;
     min-height: 100dvh;
+    overflow-x: hidden;
   }
 
-  /* Dark mode support for body (keeping for structure, but enforcing black text where possible in components) */
+  /* Dark mode support for body */
   .dark body {
     @apply bg-surface-dark text-slate-100;
   }
 
   /* Custom scrollbar */
   ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 6px;
+    height: 6px;
   }
 
   ::-webkit-scrollbar-track {
@@ -44,52 +53,58 @@
   ::-webkit-scrollbar-thumb:hover {
     @apply bg-primary-500;
   }
+
+  /* Prevent horizontal overflow globally */
+  #root {
+    overflow-x: hidden;
+    width: 100%;
+  }
 }
 
 @layer components {
 
   /* === Solid cards for performance === */
   .glass-card {
-    @apply bg-white border border-slate-200 rounded-2xl shadow-sm dark:bg-slate-800 dark:border-slate-700 transition-none;
+    @apply bg-white border border-slate-200 rounded-2xl shadow-lg shadow-slate-200/50 dark:bg-slate-800 dark:border-slate-700 transition-all duration-300;
   }
 
   .glass-card-sm {
     @apply bg-white border border-slate-200 rounded-xl shadow-sm dark:bg-slate-800 dark:border-slate-700 transition-none;
   }
 
-  /* === Bigger Buttons, No animations === */
+  /* === Responsive Buttons === */
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-primary-500 hover:bg-primary-600 active:bg-primary-700 text-white font-bold text-lg shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-none;
+    @apply inline-flex items-center justify-center gap-2 px-5 py-3 sm:px-8 sm:py-4 rounded-xl bg-primary-500 hover:bg-primary-600 active:bg-primary-700 text-white font-bold text-base sm:text-lg shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-none;
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-300 text-black font-bold text-lg dark:bg-slate-700 dark:hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed transition-none;
+    @apply inline-flex items-center justify-center gap-2 px-5 py-3 sm:px-8 sm:py-4 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-300 text-black font-bold text-base sm:text-lg dark:bg-slate-700 dark:hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed transition-none;
   }
 
   .btn-danger {
-    @apply inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-lg shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-none;
+    @apply inline-flex items-center justify-center gap-2 px-5 py-3 sm:px-8 sm:py-4 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-base sm:text-lg shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-none;
   }
 
   .btn-ghost {
-    @apply inline-flex items-center gap-2 px-6 py-3 rounded-xl text-black hover:text-primary-600 hover:bg-primary-50 text-base font-semibold transition-none;
+    @apply inline-flex items-center gap-2 px-4 py-2 sm:px-6 sm:py-3 rounded-xl text-black hover:text-primary-600 hover:bg-primary-50 text-sm sm:text-base font-semibold transition-none;
   }
 
   .btn-icon {
-    @apply p-3 rounded-xl text-black hover:text-primary-600 hover:bg-primary-50 transition-none;
+    @apply p-2 sm:p-3 rounded-xl text-black hover:text-primary-600 hover:bg-primary-50 transition-none;
   }
 
   /* === Form inputs === */
   .input {
-    @apply w-full px-5 py-4 rounded-xl bg-white border-2 border-slate-200 text-black placeholder-slate-500 focus:outline-none focus:border-primary-500 transition-none text-base;
+    @apply w-full px-4 py-3 sm:px-5 sm:py-4 rounded-xl bg-white border-2 border-slate-200 text-black placeholder-slate-500 focus:outline-none focus:border-primary-500 transition-none text-sm sm:text-base;
   }
 
   .label {
-    @apply block text-sm font-bold text-black uppercase tracking-widest mb-2;
+    @apply block text-xs sm:text-sm font-bold text-black uppercase tracking-widest mb-2;
   }
 
   /* === Status badges === */
   .badge {
-    @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-bold;
+    @apply inline-flex items-center px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-xs sm:text-sm font-bold;
   }
 
   .badge-go {
@@ -118,24 +133,24 @@
 
   /* === Sidebar nav item === */
   .nav-item {
-    @apply flex items-center gap-3 px-4 py-3 rounded-xl text-base font-bold text-black hover:text-primary-700 hover:bg-slate-100 transition-none cursor-pointer;
+    @apply flex items-center gap-3 px-4 py-3 rounded-xl text-sm sm:text-base font-bold text-black hover:text-primary-700 hover:bg-slate-100 transition-none cursor-pointer;
   }
 
   .nav-item-active {
     @apply nav-item text-primary-700 bg-primary-50 border-l-4 border-primary-500 rounded-l-none shadow-sm font-black;
   }
 
-  /* === Data table === */
+  /* === Data table — responsive === */
   .data-table {
-    @apply w-full text-base;
+    @apply w-full text-sm sm:text-base;
   }
 
   .data-table th {
-    @apply px-5 py-4 text-left text-sm font-black text-black uppercase tracking-widest;
+    @apply px-3 py-3 sm:px-5 sm:py-4 text-left text-xs sm:text-sm font-black text-black uppercase tracking-widest whitespace-nowrap;
   }
 
   .data-table td {
-    @apply px-5 py-4 text-black font-semibold border-t border-slate-200;
+    @apply px-3 py-3 sm:px-5 sm:py-4 text-black font-semibold border-t border-slate-200;
   }
 
   .data-table tr:hover td {
@@ -144,20 +159,42 @@
 
   /* === Metric card === */
   .metric-card {
-    @apply glass-card p-6 flex flex-col gap-3 transition-none hover:border-slate-300;
+    @apply glass-card p-4 sm:p-6 flex flex-col gap-2 sm:gap-3 transition-none hover:border-slate-300;
   }
 
   .metric-value {
-    @apply text-4xl font-black text-primary-600 font-sans tracking-tight;
+    @apply text-2xl sm:text-3xl lg:text-4xl font-black text-primary-600 font-sans tracking-tight;
   }
 
   .metric-label {
-    @apply text-sm font-black text-black uppercase tracking-widest;
+    @apply text-xs sm:text-sm font-black text-black uppercase tracking-widest;
   }
 
   /* Reset animations defined in inline styles */
   .animate-slide-up,
   .animate-fade-in {
     @apply transition-none animate-none !important;
+  }
+
+  /* === Responsive table wrapper for mobile === */
+  .table-responsive {
+    @apply w-full overflow-x-auto -mx-px;
+  }
+
+  /* Mobile card layout for tables */
+  @media (max-width: 639px) {
+    .mobile-card-table thead {
+      @apply hidden;
+    }
+    .mobile-card-table tbody tr {
+      @apply block mb-3 border border-slate-200 rounded-xl p-4 bg-white shadow-sm;
+    }
+    .mobile-card-table tbody td {
+      @apply block py-1.5 px-0 border-0 text-sm;
+    }
+    .mobile-card-table tbody td::before {
+      content: attr(data-label);
+      @apply font-bold text-xs uppercase tracking-widest text-slate-500 block mb-0.5;
+    }
   }
 }

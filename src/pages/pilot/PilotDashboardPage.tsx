@@ -106,7 +106,7 @@ export function PilotDashboardPage() {
                             const completedCount = [swDone, imDone, paveDone, decideDone].filter(Boolean).length
 
                             return (
-                                <div key={f.id} className="glass-card p-5 relative overflow-hidden group flex flex-col gap-4">
+                                <div key={f.id} className="bg-white rounded-2xl p-5 relative group overflow-hidden flex flex-col gap-4 shadow-xl shadow-slate-300/80 hover:shadow-2xl hover:shadow-slate-400 hover:-translate-y-1 transition-all border-2 border-blue-400/60">
                                     <div className="flex items-start justify-between">
                                         <div className="flex items-center gap-3">
                                             <div className="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center text-primary-600">
@@ -193,7 +193,7 @@ export function PilotDashboardPage() {
                     <div className="space-y-3">
                         {completedFlights.map(f => (
                             <Link key={f.id} to={`/trips/${f.id}`}
-                                className="glass-card px-5 py-4 flex items-center justify-between hover:shadow-md hover:border-primary-300 transition-all cursor-pointer">
+                                className="bg-white px-5 py-4 flex items-center justify-between rounded-2xl border border-slate-100 shadow-md shadow-slate-200/50 hover:shadow-lg hover:-translate-y-1 transition-all cursor-pointer">
                                 <div className="flex items-center gap-6">
                                     <div className="text-lg font-black text-black">{f.departure} → {f.arrival}</div>
                                     <div className="text-sm font-bold text-slate-700 bg-slate-100 px-3 py-1 rounded">{f.flightNumber || '—'}</div>

@@ -40,6 +40,7 @@ export const usersApi = {
     create: (dto: CreateUserDto) => api.post<UserResponseDto>('/api/user', dto),
     update: (id: string, dto: UpdateUserDto) => api.put<UserResponseDto>(`/api/user/${id}`, dto),
     toggleStatus: (id: string) => api.patch(`/api/user/${id}/toggle-status`),
+    delete: (id: string) => api.delete(`/api/user/${id}`),
 }
 
 // ─── Aircraft ──────────────────────────────────────────────────────────

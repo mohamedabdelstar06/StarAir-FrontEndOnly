@@ -68,7 +68,7 @@ function ReadonlyRiskCard({
         <div className="w-full bg-white border-2 border-slate-200 rounded-2xl overflow-hidden shadow-sm">
             <div className="flex items-center justify-between gap-4 px-5 py-4">
                 <div className="flex-1 min-w-0">
-                    <div className="text-xl font-black text-black leading-snug">{label}</div>
+                    <div className="text-2xl font-black text-black leading-snug">{label}</div>
                     {hint && <div className="text-base text-slate-600 mt-1 font-medium leading-relaxed">{hint}</div>}
                 </div>
                 <div className="flex gap-2 shrink-0">
@@ -134,12 +134,12 @@ const STEPS = [
 ]
 
 const DECIDE_STEP_LABELS: Record<string, { label: string; desc: string; color: string; bg: string }> = {
-    Detect: { label: 'Detect', desc: 'Scan external, internal, and personal domains', color: 'text-blue-400', bg: 'bg-blue-500/10 border-blue-500/30' },
-    Evaluate: { label: 'Evaluate', desc: 'Assess severity and likelihood of risks', color: 'text-amber-400', bg: 'bg-amber-500/10 border-amber-500/30' },
-    Consider: { label: 'Consider', desc: 'Generate at least 3 mitigations or alternatives', color: 'text-purple-400', bg: 'bg-purple-500/10 border-purple-500/30' },
-    Integrate: { label: 'Integrate', desc: 'Merge mitigations into flight plan and limits', color: 'text-cyan-400', bg: 'bg-cyan-500/10 border-cyan-500/30' },
-    Decide: { label: 'Decide', desc: 'Commit to the best plan and communicate', color: 'text-orange-400', bg: 'bg-orange-500/10 border-orange-500/30' },
-    Execute: { label: 'Execute & Reassess', desc: 'Put decision into action and continuous monitor', color: 'text-green-400', bg: 'bg-green-500/10 border-green-500/30' },
+    Detect: { label: 'Detect', desc: 'Scan external, internal, and personal domains', color: 'text-blue-800', bg: 'bg-blue-500/10 border-blue-500/30' },
+    Evaluate: { label: 'Evaluate', desc: 'Assess severity and likelihood of risks', color: 'text-slate-900', bg: 'bg-amber-500/10 border-amber-500/30' },
+    Consider: { label: 'Consider', desc: 'Generate at least 3 mitigations or alternatives', color: 'text-purple-800', bg: 'bg-purple-500/10 border-purple-500/30' },
+    Integrate: { label: 'Integrate', desc: 'Merge mitigations into flight plan and limits', color: 'text-cyan-800', bg: 'bg-cyan-500/10 border-cyan-500/30' },
+    Decide: { label: 'Decide', desc: 'Commit to the best plan and communicate', color: 'text-orange-800', bg: 'bg-orange-500/10 border-orange-500/30' },
+    Execute: { label: 'Execute & Reassess', desc: 'Put decision into action and continuous monitor', color: 'text-green-800', bg: 'bg-green-500/10 border-green-500/30' },
 }
 
 export function TripDetailPage() {
@@ -413,9 +413,9 @@ export function TripDetailPage() {
                                     ))}
                                 </div>
                             ) : (
-                                <div className="bg-white rounded-xl border-2 border-slate-200 px-4 py-3">
-                                    <div className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">What was observed / decided:</div>
-                                    <div className="text-base text-black font-medium leading-relaxed">{step.input || '—'}</div>
+                                <div className="bg-white rounded-xl border-2 border-slate-200 px-4 py-3 flex items-start gap-4">
+                                    <div className="text-xs font-black text-black uppercase tracking-widest mt-1 w-1/3">Observed / Decided:</div>
+                                    <div className="text-base text-black font-bold leading-relaxed w-2/3">{step.input || '—'}</div>
                                 </div>
                             )}
                             {step.notes && (
@@ -445,7 +445,7 @@ export function TripDetailPage() {
     }
 
     return (
-        <div className="max-w-4xl mx-auto space-y-6 animate-fade-in">
+        <div className="w-full space-y-6 animate-fade-in">
             {/* Header */}
             <div className="flex items-center gap-4">
                 <button onClick={() => navigate(backUrl)} className="p-2 rounded-xl border-2 border-slate-200 hover:bg-slate-100 transition-all">
@@ -475,14 +475,14 @@ export function TripDetailPage() {
                 <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="flex items-center justify-between text-center bg-slate-50 p-5 rounded-2xl border border-slate-200 col-span-full md:col-span-1">
                         <div className="flex-1">
-                            <div className="text-slate-500 text-xs font-bold uppercase tracking-widest mb-1">Departure</div>
+                            <div className="text-black text-sm font-bold uppercase tracking-widest mb-1">Departure</div>
                             <div className="text-3xl font-black text-black">{flight.departure}</div>
                         </div>
                         <div className="px-4 flex flex-col items-center">
-                            <Plane size={20} className="text-primary-500 rotate-90" />
+                            <Plane size={24} className="text-primary-500 rotate-90" />
                         </div>
                         <div className="flex-1">
-                            <div className="text-slate-500 text-xs font-bold uppercase tracking-widest mb-1">Arrival</div>
+                            <div className="text-black text-sm font-bold uppercase tracking-widest mb-1">Arrival</div>
                             <div className="text-3xl font-black text-black">{flight.arrival}</div>
                         </div>
                     </div>
@@ -537,22 +537,22 @@ export function TripDetailPage() {
                                 key={step.key}
                                 onClick={() => setActiveStep(i)}
                                 className={clsx(
-                                    'flex flex-col items-center text-center p-4 rounded-2xl border-2 transition-all cursor-pointer',
+                                    'flex flex-col items-center text-center p-6 rounded-2xl border-4 transition-all cursor-pointer',
                                     done ? 'border-green-500/40 bg-green-500/5' :
                                         isActive ? step.bg :
-                                            'border-slate-200 hover:border-primary-400 bg-white'
+                                            'border-slate-200 hover:border-slate-300 bg-white'
                                 )}>
-                                <div className={clsx('p-3 rounded-xl mb-2', done ? 'bg-green-500/10 text-green-600' : isActive ? step.color : 'bg-slate-100 text-slate-500')}>
-                                    <Icon size={22} />
+                                <div className={clsx('p-3 rounded-xl mb-3', done ? 'bg-green-500/10 text-green-600' : isActive ? step.color : 'bg-slate-100 text-slate-500')}>
+                                    <Icon size={32} />
                                 </div>
-                                <div className="text-sm font-black text-black mb-1">{step.label}</div>
+                                <div className="text-lg font-black text-black mb-2">{step.label}</div>
                                 {done ? (
-                                    <div className="text-[10px] text-green-600 font-bold uppercase flex items-center gap-1">
-                                        <CheckCircle size={10} /> Done
+                                    <div className="text-base text-green-700 font-black uppercase flex items-center gap-2">
+                                        <CheckCircle size={18} /> Done
                                     </div>
                                 ) : (
-                                    <div className="text-[10px] text-slate-400 font-bold uppercase flex items-center gap-1">
-                                        <XCircle size={10} /> Not Done
+                                    <div className="text-base text-slate-800 font-black uppercase flex items-center gap-2">
+                                        <XCircle size={18} /> Not Done
                                     </div>
                                 )}
                             </button>
@@ -562,7 +562,7 @@ export function TripDetailPage() {
 
                 {/* Progress bar */}
                 <div className="space-y-1.5">
-                    <div className="flex justify-between text-xs text-slate-500">
+                    <div className="flex justify-between text-sm font-bold text-gray-800">
                         <span>Assessments Completed</span>
                         <span>{stepStatus.filter(Boolean).length} / {stepStatus.length}</span>
                     </div>

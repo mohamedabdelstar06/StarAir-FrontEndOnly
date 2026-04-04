@@ -131,7 +131,7 @@ export function Header() {
                     </button>
 
                     {showNotif && (
-                        <div className="absolute right-0 top-full mt-2 w-96 bg-white border border-slate-200 rounded-xl shadow-2xl z-50 overflow-hidden">
+                        <div className="absolute right-0 top-full mt-2 w-[calc(100vw-2rem)] sm:w-96 max-w-[96vw] bg-white border border-slate-200 rounded-xl shadow-2xl z-50 overflow-hidden">
                             <div className="px-4 py-3 border-b border-slate-200 flex items-center justify-between bg-slate-50">
                                 <h3 className="text-base font-bold text-black">Notifications</h3>
                                 <div className="flex items-center gap-2">

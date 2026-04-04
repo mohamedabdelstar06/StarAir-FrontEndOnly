@@ -15,36 +15,216 @@ import {
 import clsx from 'clsx'
 import { WeatherWidget } from '../../components/shared/WeatherWidget'
 
-// ─── Risk Selector: -1=unselected, 0=OK, 3=No ───────────────────────────────
-type RiskVal = -1 | 0 | 3
+// ─── IMSAFE Risk Selector: 1=Low, 2=Medium, 3=High ───────────────────────────
+type RiskVal = -1 | 0 | 1 | 2 | 3
 
-function RiskSelector({ label, value, onChange, hint }: {
-    label: string; value: RiskVal; onChange: (v: RiskVal) => void; hint?: string;
+// IMSAFE item data
+const IMSAFE_ITEMS = [
+    {
+        key: 'illness', emoji: '🤒', letter: 'I', label: 'Illness',
+        question: 'Do I have symptoms (fever, congestion, dizziness) that could worsen under flight stress?',
+        bullets: [
+            'Evaluate any current health issues that could impair judgment or physical performance.',
+            'If any illness is noted, rate the likelihood of impairment as high and treat it as a go/no-go decision point.',
+        ],
+        tieIn: 'Integrate with PAVE framework under "Pilot" — an unexpected illness shifts your risk matrix immediately.',
+    },
+    {
+        key: 'medication', emoji: '💊', letter: 'M', label: 'Medication',
+        question: 'Am I taking any medications that could cause drowsiness, blurred vision, or impaired performance?',
+        bullets: [
+            'List every medication you\u2019re taking and check FAA-approved aeromedical guidance.',
+            'Consider side-effects: drowsiness, blurred vision, nausea. Even "mild" meds can raise your severity rating.',
+        ],
+        tieIn: 'Use DECIDE\u2019s "Identify" step — spot medication as a hazard, then "Evaluate" its impact on flight tasks.',
+    },
+    {
+        key: 'stress', emoji: '😰', letter: 'S', label: 'Stress',
+        question: 'Am I under significant psychological pressure that could drain cognitive bandwidth?',
+        bullets: [
+            'Identify major stressors: work deadlines, family issues, financial concerns.',
+            'Rate your stress: low (manageable), medium (occasional distraction), high (constant preoccupation).',
+        ],
+        tieIn: 'During your preflight GRM cost-benefit analysis, factor in stress as a multiplier on other risks.',
+    },
+    {
+        key: 'alcohol', emoji: '🍺', letter: 'A', label: 'Alcohol',
+        question: 'Have I consumed alcohol within the last 8\u201312 hours?',
+        bullets: [
+            'Confirm last drink time and consider residual impairment \u2014 even small amounts reduce situational awareness.',
+            'If in doubt, treat alcohol risk as high probability until you\u2019re certain you\u2019re back to baseline performance.',
+        ],
+        tieIn: 'Enforce personal minimums beyond regulatory minimums, strengthening your go/no-go discipline.',
+    },
+    {
+        key: 'fatigue', emoji: '😴', letter: 'F', label: 'Fatigue',
+        question: 'Am I below my personal rest standard? Fatigue undermines every phase of flight.',
+        bullets: [
+            'Note hours slept in the past 24 hours, quality of rest, and recent duty periods.',
+            'If you\u2019re below your personal rest standard, assign a high severity rating and plan to delay or cancel.',
+        ],
+        tieIn: 'Revisit this row at top-of-descent or halfway through cruise \u2014 fresh fatigue checks prevent "just one more leg" syndrome.',
+    },
+    {
+        key: 'emotion', emoji: '😤', letter: 'E', label: 'Emotions',
+        question: 'Am I experiencing emotional volatility (anger, grief, excitement) that could hijack rational decision-making?',
+        bullets: [
+            'Reflect on recent emotional events: conflicts, celebrations, distractions.',
+            'Rate emotional intensity: low (neutral), medium (distracted), high (volatile).',
+        ],
+        tieIn: 'Call out your emotional state aloud in the cockpit and reenter the DECIDE loop — externalizing emotions stabilizes judgment.',
+    },
+]
+
+// PAVE checklist data
+const PAVE_CATEGORIES = [
+    {
+        key: 'pilot', emoji: '👨\u200D✈️', label: 'Pilot',
+        desc: 'Your personal readiness and proficiency. Conduct a self-assessment covering health, currency, training, and mindset.',
+        items: [
+            'IMSAFE check: Illness, Medication, Stress, Alcohol, Fatigue, Emotion',
+            'Review recent training and flight experience to confirm currency',
+            'Confirm familiarity with aircraft type, avionics, and emergency procedures',
+            'Establish personal minimums (e.g., crosswind limits, night takeoff minima)',
+        ],
+    },
+    {
+        key: 'aircraft', emoji: '✈️', label: 'Aircraft',
+        desc: 'The condition and performance capabilities of the airplane. Confirm airworthiness, equipment, and performance.',
+        items: [
+            'Verify airworthiness documents (certificate, registration, maintenance logs)',
+            'Perform a detailed preflight inspection (fuel, oil, control surfaces, tires)',
+            'Calculate weight & balance and ensure it falls within limits',
+            'Reference POH performance charts for takeoff, climb, cruise, and landing',
+        ],
+    },
+    {
+        key: 'environment', emoji: '🌤️', label: 'enVironment',
+        desc: 'All external flight conditions — weather, terrain, airports, airspace — that can affect safety.',
+        items: [
+            'Obtain a full weather briefing (METARs, TAFs, winds aloft, AIRMETs/SIGMETs)',
+            'Check NOTAMs, TFRs, and special use airspace along planned route',
+            'Evaluate terrain elevation and obstacle clearance for departure and arrival',
+            'Plan alternates and diversion routes in case conditions deteriorate',
+        ],
+    },
+    {
+        key: 'external', emoji: '⚖️', label: 'External Pressures',
+        desc: 'Human factor influences — passenger expectations, time pressures, business demands — that can tempt unsafe decisions.',
+        items: [
+            'Identify passenger or organizational expectations (on-time arrival, schedules)',
+            'Recognize personal goals that may add stress (e.g., completing a long cross-country)',
+            'Build contingency plans and allow margin for delays or unplanned stops',
+            'Establish a no-guilt go/no-go decision point and stick to it',
+        ],
+    },
+]
+
+function ImSafeCard({ item, value, onChange, expanded, onToggle }: {
+    item: typeof IMSAFE_ITEMS[0]; value: RiskVal; onChange: (v: RiskVal) => void; expanded: boolean; onToggle: () => void;
 }) {
-    const isOk = value === 0
-    const isNo = value === 3
     return (
-        <div className="w-full bg-white border-2 border-slate-200 rounded-2xl overflow-hidden shadow-sm">
-            <div className="flex items-center justify-between gap-4 px-5 py-6">
-                <div className="flex-1 min-w-0">
-                    <div className="text-2xl font-black text-black leading-snug">{label}</div>
-                    {hint && <div className="text-lg text-black mt-2 font-medium leading-relaxed">{hint}</div>}
+        <div className="w-full bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm selection-none">
+            {/* Header */}
+            <button type="button" onClick={onToggle} className="w-full flex items-center justify-between gap-4 px-5 py-4 hover:bg-slate-50 transition-colors text-left">
+                <div className="flex items-center gap-3 flex-1 min-w-0">
+                    <div className="text-2xl flex-shrink-0 bg-blue-50 text-blue-600 w-12 h-12 flex items-center justify-center rounded-xl">{item.emoji}</div>
+                    <div className="flex-1 min-w-0">
+                        <div className="text-lg font-bold text-black leading-snug">{item.label}</div>
+                        <div className="text-sm text-slate-500 mt-0.5 truncate">{item.question}</div>
+                    </div>
                 </div>
-                <div className="flex gap-4 shrink-0">
-                    <button type="button" onClick={() => onChange(0)}
-                        className={clsx('px-8 py-4 rounded-xl text-xl font-black border-2 transition-all',
-                            isOk ? 'bg-black text-white border-black shadow-md scale-105'
-                                 : 'bg-white text-black border-slate-300 hover:border-black')}>
-                        Ok
-                    </button>
-                    <button type="button" onClick={() => onChange(3)}
-                        className={clsx('px-8 py-4 rounded-xl text-xl font-black border-2 transition-all',
-                            isNo ? 'bg-black text-white border-black shadow-md scale-105'
-                                 : 'bg-white text-black border-slate-300 hover:border-black')}>
-                        no
-                    </button>
+                <ChevronRight size={20} className={clsx('text-slate-400 transition-transform flex-shrink-0', expanded && 'rotate-90')} />
+            </button>
+
+            {/* Expanded Details */}
+            {expanded && (
+                <div className="px-5 pb-5 border-t border-slate-100 space-y-4 animate-slide-up pt-4">
+                    {/* Self Assessment Row */}
+                    <div className="flex items-center gap-3">
+                        <span className="text-xs font-black text-slate-500 uppercase tracking-widest">Self-Assessment:</span>
+                        <div className="flex gap-2">
+                            {([1, 2, 3] as const).map(lvl => {
+                                const labels = { 1: 'LOW', 2: 'MEDIUM', 3: 'HIGH' }
+                                const colors = {
+                                    1: value === lvl ? 'bg-green-100 text-green-700 border border-green-300' : 'bg-transparent text-slate-400 border border-transparent hover:bg-green-50 hover:text-green-600',
+                                    2: value === lvl ? 'bg-amber-100 text-amber-700 border border-amber-300' : 'bg-transparent text-slate-400 border border-transparent hover:bg-amber-50 hover:text-amber-600',
+                                    3: value === lvl ? 'bg-red-100 text-red-700 border border-red-300' : 'bg-transparent text-slate-400 border border-transparent hover:bg-red-50 hover:text-red-600',
+                                }
+                                return (
+                                    <button key={lvl} type="button" onClick={() => onChange(lvl as RiskVal)}
+                                        className={clsx('px-3 py-1 rounded-lg text-xs font-bold transition-all', colors[lvl])}>
+                                        {labels[lvl]}
+                                    </button>
+                                )
+                            })}
+                        </div>
+                    </div>
+
+                    <ul className="space-y-3 mt-2">
+                        {item.bullets.map((b, i) => (
+                            <li key={i} className="flex items-start gap-2 text-sm text-slate-600">
+                                <span className="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0 mt-1.5" />
+                                <span className="leading-relaxed">{b}</span>
+                            </li>
+                        ))}
+                    </ul>
+                    <div className="bg-blue-50 border border-blue-100 rounded-xl px-4 py-3 mt-4">
+                        <div className="text-xs font-bold text-blue-700 mb-1">ADM / GRM Tie-in</div>
+                        <div className="text-sm text-blue-900">{item.tieIn}</div>
+                    </div>
                 </div>
-            </div>
+            )}
+        </div>
+    )
+}
+
+function PaveChecklistCard({ category, checked, onCheck, expanded, onToggle }: {
+    category: typeof PAVE_CATEGORIES[0]; checked: boolean[]; onCheck: (idx: number) => void; expanded: boolean; onToggle: () => void;
+}) {
+    const doneCount = checked.filter(Boolean).length
+    return (
+        <div className="w-full bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+            <button type="button" onClick={onToggle} className="w-full flex items-center justify-between gap-4 px-5 py-4 hover:bg-slate-50 transition-colors text-left">
+                <div className="flex items-center gap-3 flex-1 min-w-0">
+                    <div className="text-2xl flex-shrink-0 bg-blue-50 text-blue-600 w-12 h-12 flex items-center justify-center rounded-xl">{category.emoji}</div>
+                    <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                            <span className="text-lg font-bold text-black leading-snug">{category.label}</span>
+                            <span className="text-xs font-medium text-slate-400">{doneCount}/{category.items.length}</span>
+                        </div>
+                        <div className="text-sm text-slate-500 mt-0.5 truncate">{category.desc}</div>
+                    </div>
+                </div>
+                <ChevronRight size={20} className={clsx('text-slate-400 transition-transform flex-shrink-0', expanded && 'rotate-90')} />
+            </button>
+            {expanded && (
+                <div className="px-5 pb-5 border-t border-slate-100 space-y-3 animate-slide-up pt-4">
+                    {category.items.map((item, i) => {
+                        const isChecked = checked[i]
+                        return (
+                            <label key={i} className={clsx(
+                                'flex items-start gap-4 cursor-pointer group p-4 rounded-xl border transition-all',
+                                isChecked ? 'bg-green-50 border-green-200' : 'bg-white border-slate-200 hover:border-slate-300'
+                            )}>
+                                <input type="checkbox" className="hidden" checked={isChecked} onChange={() => onCheck(i)} />
+                                <div className={clsx(
+                                    'w-5 h-5 mt-0.5 rounded-full flex-shrink-0 flex items-center justify-center transition-colors',
+                                    isChecked ? 'bg-green-500 text-white border-green-500' : 'border-2 border-slate-300 group-hover:border-slate-400 bg-transparent'
+                                )}>
+                                    {isChecked && <Check size={14} strokeWidth={3} />}
+                                </div>
+                                <span className={clsx(
+                                    'text-sm leading-relaxed transition-all',
+                                    isChecked ? 'text-slate-400 line-through' : 'text-slate-700 font-medium'
+                                )}>
+                                    {item}
+                                </span>
+                            </label>
+                        )
+                    })}
+                </div>
+            )}
         </div>
     )
 }
@@ -52,16 +232,16 @@ function RiskSelector({ label, value, onChange, hint }: {
 // ─── Result Card ──────────────────────────────────────────────────────────────
 function ResultCard({ result, score, outOf }: { result: string; score: number; outOf: number }) {
     const cfg = result === 'Go'
-        ? { bg: 'bg-green-500/10 border-green-500/30', text: 'text-green-400', icon: '✈', msg: 'Cleared for flight operations' }
+        ? { bg: 'bg-green-50 border-green-200', text: 'text-green-700', icon: '✈', msg: 'Cleared for flight operations' }
         : result === 'Caution'
-            ? { bg: 'bg-amber-500/10 border-amber-500/30', text: 'text-amber-400', icon: '⚠', msg: 'Proceed with extra caution' }
-            : { bg: 'bg-red-500/10 border-red-500/30', text: 'text-red-400', icon: '✕', msg: 'Do NOT fly today' }
+            ? { bg: 'bg-amber-50 border-amber-200', text: 'text-amber-700', icon: '⚠', msg: 'Proceed with extra caution' }
+            : { bg: 'bg-red-50 border-red-200', text: 'text-red-700', icon: '✕', msg: 'Do NOT fly today' }
     return (
-        <div className={clsx('rounded-xl border p-5 text-center animate-slide-up', cfg.bg)}>
+        <div className={clsx('rounded-xl border-2 p-5 text-center animate-slide-up', cfg.bg)}>
             <div className={clsx('text-4xl mb-2', cfg.text)}>{cfg.icon}</div>
-            <div className={clsx('text-2xl font-bold', cfg.text)}>{result}</div>
-            <div className="text-sm text-slate-400 mt-1">{cfg.msg}</div>
-            <div className="text-xs text-slate-500 mt-1">Risk Score: <span className="font-mono font-bold text-slate-300">{score}/{outOf}</span></div>
+            <div className={clsx('text-2xl font-black', cfg.text)}>{result}</div>
+            <div className="text-sm text-slate-600 mt-1 font-bold">{cfg.msg}</div>
+            <div className="text-xs text-slate-500 mt-1 font-semibold">Risk Score: <span className="font-mono font-black text-slate-800">{score}/{outOf}</span></div>
         </div>
     )
 }
@@ -78,33 +258,33 @@ const DECIDE_STEPS = [
     {
         type: 0, key: 'D', label: 'Detect',
         desc: 'Maintain continuous vigilance — scan external (weather, traffic, terrain), internal (fuel, systems, workload), and personal (IMSAFE) domains. Log emerging hazards on your kneeboard.',
-        color: 'text-blue-400', bg: 'bg-blue-500/10 border-blue-500/30'
+        color: 'text-blue-800', bg: 'bg-blue-500/10 border-blue-500/30'
     },
     {
         type: 1, key: 'E', label: 'Evaluate',
         desc: 'Assess severity (how big an upset could be) × likelihood (how probable). Rate as Low / Medium / High. Consider time pressure and fuel state vs. alternate distance.',
-        color: 'text-amber-400', bg: 'bg-amber-500/10 border-amber-500/30'
+        color: 'text-slate-900', bg: 'bg-amber-500/10 border-amber-500/30'
     },
     {
         type: 2, key: 'C', label: 'Consider',
         desc: 'Generate at least 3 workable mitigations or alternatives. Engage crew or passengers for input. Write all options on a scratchpad to keep them visible.',
-        color: 'text-purple-400', bg: 'bg-purple-500/10 border-purple-500/30',
+        color: 'text-purple-800', bg: 'bg-purple-500/10 border-purple-500/30',
         isConsider: true
     },
     {
         type: 3, key: 'I', label: 'Integrate',
         desc: 'Merge chosen mitigations into a coherent flight plan. Balance aircraft limits, airspace, fuel, and approach minima. Sequence tasks into a logical flow.',
-        color: 'text-cyan-400', bg: 'bg-cyan-500/10 border-cyan-500/30'
+        color: 'text-cyan-800', bg: 'bg-cyan-500/10 border-cyan-500/30'
     },
     {
         type: 4, key: 'D', label: 'Decide',
         desc: 'Select the single best plan and commit. Make a clear call-out: heading, squawk, ETA. Brief passengers and ATC without hesitation.',
-        color: 'text-orange-400', bg: 'bg-orange-500/10 border-orange-500/30'
+        color: 'text-orange-800', bg: 'bg-orange-500/10 border-orange-500/30'
     },
     {
         type: 5, key: 'E', label: 'Execute & Reassess',
         desc: 'Put the decision into action with precise control inputs and checklist discipline. Then continuously monitor — if conditions change, loop back to Detect–Evaluate.',
-        color: 'text-green-400', bg: 'bg-green-500/10 border-green-500/30'
+        color: 'text-green-800', bg: 'bg-green-500/10 border-green-500/30'
     },
 ]
 
@@ -154,6 +334,16 @@ export function FlightPrepPage() {
     const [icao, setIcao] = useState('')
     const [fetchingWt, setFetchingWt] = useState(false)
     const [wtError, setWtError] = useState('')
+    // PAVE checklist state
+    const [paveChecked, setPaveChecked] = useState<Record<string, boolean[]>>({
+        pilot: [false, false, false, false],
+        aircraft: [false, false, false, false],
+        environment: [false, false, false, false],
+        external: [false, false, false, false],
+    })
+    const [paveExpanded, setPaveExpanded] = useState<string | null>('pilot')
+    // IMSAFE expanded state
+    const [imExpanded, setImExpanded] = useState<string | null>('illness')
 
     // ── DECIDE state ──
     const [decideSessionId, setDecideSessionId] = useState<number | null>(null)
@@ -505,18 +695,19 @@ export function FlightPrepPage() {
                 <form onSubmit={handleImSubmit} className="space-y-3">
                     {imResult && <ResultCard result={imResult.result} score={imResult.overallRiskScore} outOf={18} />}
                     <div className="space-y-3">
-                        <RiskSelector label="🤒 I — Illness" value={imForm.illnessLevel as RiskVal} onChange={v => setImForm(f => ({ ...f, illnessLevel: v }))}
-                            hint="Do you have any symptoms (fever, congestion, dizziness) that could worsen under flight stress?" />
-                        <RiskSelector label="💊 M — Medication" value={imForm.medicationLevel as RiskVal} onChange={v => setImForm(f => ({ ...f, medicationLevel: v }))}
-                            hint="Are you taking any medications (OTC or prescription) that could cause drowsiness, blurred vision, or impaired performance?" />
-                        <RiskSelector label="😰 S — Stress" value={imForm.stressLevel as RiskVal} onChange={v => setImForm(f => ({ ...f, stressLevel: v }))}
-                            hint="Are you under significant psychological pressure (work, finances, family) that could drain cognitive bandwidth during flight?" />
-                        <RiskSelector label="🍺 A — Alcohol" value={imForm.alcoholLevel as RiskVal} onChange={v => setImForm(f => ({ ...f, alcoholLevel: v }))}
-                            hint="Have you consumed alcohol within the last 8–12 hours? Residual effects can linger beyond the FAA minimum 'bottle-to-throttle' rule." />
-                        <RiskSelector label="😴 F — Fatigue" value={imForm.fatigueLevel as RiskVal} onChange={v => setImForm(f => ({ ...f, fatigueLevel: v }))}
-                            hint="Are you below your personal rest standard? Fatigue undermines every phase of flight — treat it as seriously as a mechanical failure." />
-                        <RiskSelector label="😤 E — Emotions" value={imForm.emotionLevel as RiskVal} onChange={v => setImForm(f => ({ ...f, emotionLevel: v }))}
-                            hint="Are you experiencing emotional volatility (anger, grief, excitement) that could hijack rational decision-making during flight?" />
+                        {IMSAFE_ITEMS.map(item => {
+                            const formKey = `${item.key}Level` as keyof CreateImSafeDto
+                            return (
+                                <ImSafeCard
+                                    key={item.key}
+                                    item={item}
+                                    value={(imForm as any)[formKey] as RiskVal}
+                                    onChange={v => setImForm(f => ({ ...f, [formKey]: v }))}
+                                    expanded={imExpanded === item.key}
+                                    onToggle={() => setImExpanded(prev => prev === item.key ? null : item.key)}
+                                />
+                            )
+                        })}
                     </div>
                     <div className="flex justify-end pt-4">
                         <button type="submit" disabled={imSaving} className="btn-primary flex items-center gap-2 px-10 py-4 text-base font-bold">
@@ -530,17 +721,63 @@ export function FlightPrepPage() {
 
         // ── PAVE Panel ──
         if (activeStep === 2) {
+            // Map checklist items to risk levels: 0-1 checked = None(0), 2 checked = Low(1), 3 checked = Medium(2), 4 checked = High(3)
+            const mapCheckedToRisk = (checks: boolean[]): number => {
+                const count = checks.filter(Boolean).length
+                if (count === 0) return 0  // None - not reviewed
+                if (count <= 2) return 0   // None - OK (reviewed and safe)
+                if (count === 3) return 0  // OK
+                return 0                    // All checked = fully reviewed = OK
+            }
+            // When all items are NOT checked, that means concerns exist
+            const mapUncheckedToRisk = (checks: boolean[]): number => {
+                const unchecked = checks.filter(c => !c).length
+                if (unchecked === 0) return 0  // All reviewed = None/OK
+                if (unchecked === 1) return 1  // Low concern  
+                if (unchecked === 2) return 2  // Medium concern
+                return 3                        // High concern (most items not reviewed)
+            }
+
+            const handlePaveCheckSubmit = async (e: React.FormEvent) => {
+                e.preventDefault()
+                setPaveSaving(true)
+                try {
+                    const sanitized: CreatePaveDto = {
+                        ...paveForm,
+                        pilotRiskLevel: mapUncheckedToRisk(paveChecked.pilot),
+                        aircraftRiskLevel: mapUncheckedToRisk(paveChecked.aircraft),
+                        environmentRiskLevel: mapUncheckedToRisk(paveChecked.environment),
+                        externalRiskLevel: mapUncheckedToRisk(paveChecked.external),
+                        pilotReadiness: `Checked ${paveChecked.pilot.filter(Boolean).length}/4 items`,
+                        aircraftCondition: `Checked ${paveChecked.aircraft.filter(Boolean).length}/4 items`,
+                        externalPressures: `Checked ${paveChecked.external.filter(Boolean).length}/4 items`,
+                    }
+                    const { data } = await paveApi.create(sanitized)
+                    setPaveResult(data)
+                    if (flight) await flightApi.link(flight.id, { paveAssessmentId: data.id })
+                    setActiveStep(3)
+                    loadFlight()
+                } finally { setPaveSaving(false) }
+            }
+
             return (
-                <form onSubmit={handlePaveSubmit} className="space-y-3">
+                <form onSubmit={handlePaveCheckSubmit} className="space-y-3">
+                    {paveResult && <ResultCard result={paveResult.result} score={paveResult.overallRiskScore} outOf={12} />}
                     <div className="space-y-3">
-                        <RiskSelector label="✈️ P — Pilot" value={paveForm.pilotRiskLevel as RiskVal} onChange={v => setPaveForm(f => ({ ...f, pilotRiskLevel: v }))}
-                            hint="Are there concerns with your health, training currency, aircraft familiarity, or personal minimums for this flight?" />
-                        <RiskSelector label="🛫 A — Aircraft" value={paveForm.aircraftRiskLevel as RiskVal} onChange={v => setPaveForm(f => ({ ...f, aircraftRiskLevel: v }))}
-                            hint="Are there any concerns with airworthiness, weight & balance, fuel, or performance for the assigned aircraft type?" />
-                        <RiskSelector label="V — enVironment" value={paveForm.environmentRiskLevel as RiskVal} onChange={v => setPaveForm(f => ({ ...f, environmentRiskLevel: v }))} 
-                            hint="Weather, NOTAMs, terrain, alternates" />
-                        <RiskSelector label="E — External Pressures" value={paveForm.externalRiskLevel as RiskVal} onChange={v => setPaveForm(f => ({ ...f, externalRiskLevel: v }))} 
-                            hint="Passenger expectations, time pressures, personal ambitions" />
+                        {PAVE_CATEGORIES.map(cat => (
+                            <PaveChecklistCard
+                                key={cat.key}
+                                category={cat}
+                                checked={paveChecked[cat.key]}
+                                onCheck={idx => setPaveChecked(prev => {
+                                    const arr = [...prev[cat.key]]
+                                    arr[idx] = !arr[idx]
+                                    return { ...prev, [cat.key]: arr }
+                                })}
+                                expanded={paveExpanded === cat.key}
+                                onToggle={() => setPaveExpanded(prev => prev === cat.key ? null : cat.key)}
+                            />
+                        ))}
                     </div>
                     <div className="flex justify-end pt-4">
                         <button type="submit" disabled={paveSaving} className="btn-primary flex items-center gap-2 px-10 py-4 text-base font-bold">
@@ -591,9 +828,9 @@ export function FlightPrepPage() {
     }
 
     return (
-        <div className="w-full px-4 xl:px-8 pb-12 flex flex-col lg:flex-row gap-6 animate-fade-in items-start">
-            {/* Left Sidebar (Mission Prep Info) */}
-            <div className="w-full lg:w-1/3 lg:sticky lg:top-6 space-y-6">
+        <div className="w-full px-4 xl:px-8 pb-12 flex flex-col gap-6 animate-fade-in items-start">
+            {/* Header and Flight Info Box */}
+            <div className="w-full space-y-6">
                 {/* Header */}
             <div className="flex items-center gap-4">
                 <Link to="/dashboard" className="btn-icon"><ChevronLeft size={20} /></Link>
@@ -614,14 +851,14 @@ export function FlightPrepPage() {
                 <div className="p-6 grid grid-cols-1 gap-6">
                     <div className="flex items-center justify-between text-center bg-slate-50 p-5 rounded-2xl border border-slate-200 col-span-full md:col-span-1">
                         <div className="flex-1">
-                            <div className="text-slate-500 text-xs font-bold uppercase tracking-widest mb-1">Departure</div>
+                            <div className="text-black text-sm font-bold uppercase tracking-widest mb-1">Departure</div>
                             <div className="text-3xl font-black text-black">{flight.departure}</div>
                         </div>
                         <div className="px-4 flex flex-col items-center">
-                            <Plane size={20} className="text-primary-500 rotate-90" />
+                            <Plane size={24} className="text-primary-500 rotate-90" />
                         </div>
                         <div className="flex-1">
-                            <div className="text-slate-500 text-xs font-bold uppercase tracking-widest mb-1">Arrival</div>
+                            <div className="text-black text-sm font-bold uppercase tracking-widest mb-1">Arrival</div>
                             <div className="text-3xl font-black text-black">{flight.arrival}</div>
                         </div>
                     </div>
@@ -642,7 +879,7 @@ export function FlightPrepPage() {
         </div>
         
         {/* Right Content (Forms & steps) */}
-        <div className="w-full lg:w-2/3 space-y-6">
+        <div className="w-full space-y-6">
 
             {/* All Done Banner */}
             {allDone && (
@@ -673,27 +910,27 @@ export function FlightPrepPage() {
                                 onClick={() => canOpen && setActiveStep(isActive ? null : i)}
                                 disabled={!canOpen}
                                 className={clsx(
-                                    'flex flex-col items-center text-center p-4 rounded-2xl border-2 transition-all',
+                                    'flex flex-col items-center text-center p-6 rounded-2xl border-4 transition-all',
                                     done ? 'border-green-500/40 bg-green-500/5' :
                                         isActive ? `${step.bg}` :
-                                            canOpen ? 'border-cockpit-600 hover:border-primary-500/50 bg-cockpit-800/30 cursor-pointer' :
-                                                'border-cockpit-700/30 bg-cockpit-800/10 opacity-40 cursor-not-allowed'
+                                            canOpen ? 'border-slate-300 hover:border-slate-400 bg-white cursor-pointer' :
+                                                'border-slate-200 bg-slate-50 opacity-50 cursor-not-allowed'
                                 )}>
-                                <div className={clsx('p-3 rounded-xl mb-2', done ? 'bg-green-500/10 text-green-400' : isActive ? step.color : 'bg-slate-800 text-slate-500')}>
-                                    <Icon size={22} />
+                                <div className={clsx('p-3 rounded-xl mb-3', done ? 'bg-green-500/10 text-green-600' : isActive ? step.color : 'bg-slate-200 text-slate-700')}>
+                                    <Icon size={32} />
                                 </div>
-                                <div className="text-sm font-black text-black mb-1">{step.label}</div>
+                                <div className="text-lg font-black text-black mb-2">{step.label}</div>
                                 {done ? (
-                                    <div className="text-[10px] text-green-400 font-bold uppercase flex items-center gap-1">
-                                        <CheckCircle size={10} /> Done
+                                    <div className="text-base text-green-700 font-black uppercase flex items-center gap-2">
+                                        <CheckCircle size={18} /> Done
                                     </div>
                                 ) : isActive ? (
-                                    <div className="text-[10px] text-primary-400 font-bold uppercase">In Progress</div>
+                                    <div className="text-base text-primary-600 font-black uppercase">In Progress</div>
                                 ) : canOpen ? (
-                                    <div className="text-[10px] text-slate-500 font-bold uppercase">Tap to Start</div>
+                                    <div className="text-base text-black font-black uppercase">Tap to Start</div>
                                 ) : (
-                                    <div className="text-[10px] text-slate-600 font-bold uppercase flex items-center gap-1">
-                                        <AlertTriangle size={10} /> Locked
+                                    <div className="text-base text-slate-800 font-black uppercase flex items-center gap-2">
+                                        <AlertTriangle size={18} /> Locked
                                     </div>
                                 )}
                             </button>
