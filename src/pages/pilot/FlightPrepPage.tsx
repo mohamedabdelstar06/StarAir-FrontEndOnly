@@ -10,7 +10,8 @@ import {
     ShieldCheck, ClipboardCheck, Brain, Plane, Calendar, Clock,
     ChevronLeft, CheckCircle, RefreshCw, Watch,
     ArrowRight, Activity, Loader2, CloudRain, Search, Check, X, AlertTriangle, Signal,
-    ChevronRight
+    ChevronRight,
+    PieChart
 } from 'lucide-react'
 import clsx from 'clsx'
 import { WeatherWidget } from '../../components/shared/WeatherWidget'
@@ -227,8 +228,10 @@ function PaveChecklistCard({ category, checked, onCheck, expanded, onToggle }: {
             )}
         </div>
     )
+}
+
 // ─── SVG Pie Chart ────────────────────────────────────────────────────────────
-function PieChart({ percentage, color, size = 80 }: { percentage: number; color: string; size?: number }) {
+function SystemPieChart({ percentage, color, size = 80 }: { percentage: number; color: string; size?: number }) {
     const radius = (size - 10) / 2
     const cx = size / 2
     const cy = size / 2
@@ -253,8 +256,6 @@ function PieChart({ percentage, color, size = 80 }: { percentage: number; color:
     )
 }
 
-}
-
 // ─── Result Card ──────────────────────────────────────────────────────────────
 function ResultCard({ result, score, outOf }: { result: string; score: number; outOf: number }) {
     const okPercent = Math.max(0, Math.round((1 - score / outOf) * 100))
@@ -265,7 +266,7 @@ function ResultCard({ result, score, outOf }: { result: string; score: number; o
             : { bg: 'bg-red-50 border-red-300', text: 'text-red-700', msg: 'Do NOT fly today', color: '#dc2626' }
     return (
         <div className={clsx('rounded-2xl border-2 p-5 flex items-center gap-5 animate-slide-up', cfg.bg)}>
-            <PieChart percentage={okPercent} color={cfg.color} size={80} />
+            <SystemPieChart percentage={okPercent} color={cfg.color} size={80} />
             <div>
                 <div className={clsx('text-2xl font-black', cfg.text)}>{result}</div>
                 <div className="text-sm text-slate-800 font-bold mt-0.5">{cfg.msg}</div>
@@ -824,7 +825,7 @@ export function FlightPrepPage() {
                 return (
                     <div className="space-y-4 animate-slide-up">
                         <div className="rounded-2xl border-2 p-5 flex items-center gap-5 bg-green-50 border-green-300">
-                            <PieChart percentage={100} color="#16a34a" size={80} />
+                            <SystemPieChart percentage={100} color="#16a34a" size={80} />
                             <div>
                                 <div className="text-2xl font-black text-green-700">DECIDE</div>
                                 <div className="text-sm text-slate-800 font-bold mt-0.5">6 / 6 Steps Completed</div>
