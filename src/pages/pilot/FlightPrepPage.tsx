@@ -227,21 +227,51 @@ function PaveChecklistCard({ category, checked, onCheck, expanded, onToggle }: {
             )}
         </div>
     )
+// ─── SVG Pie Chart ────────────────────────────────────────────────────────────
+function PieChart({ percentage, color, size = 80 }: { percentage: number; color: string; size?: number }) {
+    const radius = (size - 10) / 2
+    const cx = size / 2
+    const cy = size / 2
+    const circumference = 2 * Math.PI * radius
+    const dash = (percentage / 100) * circumference
+    const gap = circumference - dash
+    return (
+        <svg width={size} height={size}>
+            <circle cx={cx} cy={cy} r={radius} fill="none" stroke="#e2e8f0" strokeWidth={10} />
+            <circle
+                cx={cx} cy={cy} r={radius} fill="none"
+                stroke={color} strokeWidth={10}
+                strokeDasharray={`${dash} ${gap}`}
+                strokeLinecap="round"
+                transform={`rotate(-90 ${cx} ${cy})`}
+            />
+            <text x={cx} y={cy + 1} textAnchor="middle" dominantBaseline="middle"
+                fontSize={size < 70 ? 12 : 15} fontWeight="900" fill="#1e293b">
+                {Math.round(percentage)}%
+            </text>
+        </svg>
+    )
+}
+
 }
 
 // ─── Result Card ──────────────────────────────────────────────────────────────
 function ResultCard({ result, score, outOf }: { result: string; score: number; outOf: number }) {
+    const okPercent = Math.max(0, Math.round((1 - score / outOf) * 100))
     const cfg = result === 'Go'
-        ? { bg: 'bg-green-50 border-green-200', text: 'text-green-700', icon: '✈', msg: 'Cleared for flight operations' }
+        ? { bg: 'bg-green-50 border-green-300', text: 'text-green-700', msg: 'Cleared for flight operations', color: '#16a34a' }
         : result === 'Caution'
-            ? { bg: 'bg-amber-50 border-amber-200', text: 'text-amber-700', icon: '⚠', msg: 'Proceed with extra caution' }
-            : { bg: 'bg-red-50 border-red-200', text: 'text-red-700', icon: '✕', msg: 'Do NOT fly today' }
+            ? { bg: 'bg-amber-50 border-amber-300', text: 'text-amber-700', msg: 'Proceed with extra caution', color: '#d97706' }
+            : { bg: 'bg-red-50 border-red-300', text: 'text-red-700', msg: 'Do NOT fly today', color: '#dc2626' }
     return (
-        <div className={clsx('rounded-xl border-2 p-5 text-center animate-slide-up', cfg.bg)}>
-            <div className={clsx('text-4xl mb-2', cfg.text)}>{cfg.icon}</div>
-            <div className={clsx('text-2xl font-black', cfg.text)}>{result}</div>
-            <div className="text-sm text-slate-600 mt-1 font-bold">{cfg.msg}</div>
-            <div className="text-xs text-slate-500 mt-1 font-semibold">Risk Score: <span className="font-mono font-black text-slate-800">{score}/{outOf}</span></div>
+        <div className={clsx('rounded-2xl border-2 p-5 flex items-center gap-5 animate-slide-up', cfg.bg)}>
+            <PieChart percentage={okPercent} color={cfg.color} size={80} />
+            <div>
+                <div className={clsx('text-2xl font-black', cfg.text)}>{result}</div>
+                <div className="text-sm text-slate-800 font-bold mt-0.5">{cfg.msg}</div>
+                <div className="text-xs text-slate-500 mt-1 font-semibold">Risk Score: <span className="font-mono font-black text-slate-800">{score}/{outOf}</span></div>
+                <div className={clsx('text-xs font-bold mt-1', cfg.text)}>{okPercent}% OK rate</div>
+            </div>
         </div>
     )
 }
@@ -789,8 +819,22 @@ export function FlightPrepPage() {
             )
         }
 
-        // ── DECIDE Panel ──
         if (activeStep === 3) {
+            if (decideDone) {
+                return (
+                    <div className="space-y-4 animate-slide-up">
+                        <div className="rounded-2xl border-2 p-5 flex items-center gap-5 bg-green-50 border-green-300">
+                            <PieChart percentage={100} color="#16a34a" size={80} />
+                            <div>
+                                <div className="text-2xl font-black text-green-700">DECIDE</div>
+                                <div className="text-sm text-slate-800 font-bold mt-0.5">6 / 6 Steps Completed</div>
+                                <div className="text-xs text-slate-500 mt-1 font-semibold">Status: <span className="text-green-600">Completed</span></div>
+                                <div className="text-xs font-bold mt-1 text-green-700">100% complete</div>
+                            </div>
+                        </div>
+                    </div>
+                )
+            }
             return (
                 <div className="space-y-6">
                     {DECIDE_STEPS.map((s, i) => (

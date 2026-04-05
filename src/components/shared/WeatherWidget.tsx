@@ -34,46 +34,95 @@ export function WeatherWidget({ icao }: { icao: string }) {
         </div>
     );
 
+    let weatherStatus = '✅ Go';
+    let statusStyle = 'bg-green-500/20 text-green-100 border-green-500/30';
+    let statusMsg = 'Clear for operations';
+    
+    if (data) {
+        const cat = (data.flightCategory || '').toUpperCase();
+        const cond = (data.wxConditions || '').toUpperCase();
+        
+        if (cat === 'IFR' || cat === 'LIFR' || cond.includes('TS') || cond.includes('FG')) {
+            weatherStatus = '❌ No-Go';
+            statusMsg = '(IFR / low vis / TS)';
+            statusStyle = 'bg-red-500/40 text-red-50 border-red-500/50';
+        } else if (cat === 'MVFR' || cond.includes('TEMPO') || cond.includes('PROB') || cond.includes('BR')) {
+            weatherStatus = '⚠️ Caution';
+            statusMsg = '';
+            statusStyle = 'bg-amber-500/40 text-amber-50 border-amber-500/50';
+        }
+    }
+
+    const getWeatherEmoji = () => {
+        if (!data) return '☀️';
+        const cat = (data.flightCategory || '').toUpperCase();
+        const cond = (data.wxConditions || '').toUpperCase();
+        
+        if (cond.includes('TS')) return '⛈️';
+        if (cond.includes('RA') || cond.includes('SH') || cond.includes('DZ')) return '🌧️';
+        if (cond.includes('SN') || cond.includes('SG') || cond.includes('PL') || cond.includes('GR')) return '🌨️';
+        if (cond.includes('FG') || cond.includes('BR') || cond.includes('HZ')) return '🌫️';
+        if (cat === 'IFR' || cat === 'LIFR') return '☁️';
+        if (cat === 'MVFR') return '⛅';
+        return '☀️';
+    };
+
     return (
-        <div className="w-full bg-white border-2 border-slate-200 rounded-3xl overflow-hidden shadow-sm relative">
-            {/* Header / Top Section */}
-            <div className="flex justify-between items-start mb-6 relative z-10 w-full p-6 pb-0">
+        <div className="w-full h-full border-0 rounded-[32px] overflow-hidden shadow-xl relative text-white bg-gradient-to-b from-[#4170a4] to-[#2b4c73] p-6 sm:p-8 flex flex-col justify-between min-h-[360px]">
+            {/* Header */}
+            <div className="z-10 w-full mb-6 relative flex justify-between items-start">
                 <div>
-                    <h2 className="text-4xl font-black text-black tracking-tight">{icao.toUpperCase()}</h2>
-                    <div className="text-slate-500 font-bold tracking-wide flex items-center gap-2 mt-1 uppercase text-xs">
-                        <Plane size={14} className="text-primary-500" /> Flight Station
+                    <h3 className="text-2xl font-bold tracking-wide text-white">Current Weather</h3>
+                    <div className="text-base font-semibold text-white/80 uppercase flex items-center gap-2 mt-2">
+                        <Plane size={16} className="text-sky-300" /> {icao.toUpperCase()}
                         {data.flightCategory && (
-                            <span className={clsx('ml-2 px-2.5 py-0.5 rounded-md text-[10px] font-black uppercase text-white shadow-sm', 
-                                data.flightCategory === 'VFR' ? 'bg-green-500' :
-                                data.flightCategory === 'MVFR' ? 'bg-blue-500' :
-                                data.flightCategory === 'IFR' ? 'bg-red-500' :
-                                'bg-purple-500')}>
+                            <span className={clsx('ml-2 px-3 py-1 rounded-md text-sm font-black uppercase border border-white/20', 
+                                data.flightCategory === 'VFR' ? 'bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]' :
+                                data.flightCategory === 'MVFR' ? 'bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]' :
+                                data.flightCategory === 'IFR' ? 'bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]' :
+                                'bg-purple-500 shadow-[0_0_10px_rgba(168,85,247,0.5)]')}>
                                 {data.flightCategory}
                             </span>
                         )}
                     </div>
                 </div>
-                <div className="text-right">
-                    <div className="text-5xl font-black text-black tracking-tighter">{data.tempDewPoint.split('/')[0]}°</div>
-                    <div className="text-slate-500 font-bold text-sm mt-1 uppercase">Dew {data.tempDewPoint.split('/')[1] || '--'}°</div>
+            </div>
+
+            {/* Central Big Info */}
+            <div className="z-10 flex flex-col items-center justify-center -mt-2">
+                <div className="flex items-center justify-center gap-6">
+                    <div className="text-7xl sm:text-[100px] leading-none select-none filter drop-shadow-2xl">
+                        {getWeatherEmoji()}
+                    </div>
+                    <div className="flex flex-col items-start translate-y-3">
+                        <div className="text-7xl sm:text-[90px] font-black tracking-tighter drop-shadow-lg leading-none">
+                            {data.tempDewPoint.split('/')[0]}<span className="text-4xl text-white/80 absolute -top-1">°c</span>
+                        </div>
+                    </div>
+                </div>
+                <div className="text-xl sm:text-2xl font-bold tracking-wide mt-6 text-white drop-shadow capitalize">
+                    {data.wxConditions === 'None' ? 'Clear Skies' : data.wxConditions}
+                </div>
+                
+                {/* Assessment Badge */}
+                <div className={clsx('mt-4 inline-flex items-center gap-2 px-4 py-1.5 rounded-full backdrop-blur-md border shadow-md font-bold', statusStyle)}>
+                    <span className="text-sm">{weatherStatus}</span>
+                    <span className="opacity-80 text-xs font-semibold">{statusMsg}</span>
                 </div>
             </div>
 
-            {/* Metrics Grid */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 p-6 relative z-10">
+            {/* Bottom Metrics Grid */}
+            <div className="z-10 mt-8 grid grid-cols-4 gap-2 border-t border-white/10 pt-6">
                 {[
-                    { icon: <Eye size={20} className="text-primary-500" />, label: 'Visibility', value: data.visibility },
-                    { icon: <Wind size={20} className="text-primary-500" />, label: 'Wind', value: data.wind },
-                    { icon: <CloudRain size={20} className="text-primary-500" />, label: 'Conditions', value: data.wxConditions || 'None' },
-                    { icon: <Cloud size={20} className="text-primary-500" />, label: 'Ceiling', value: data.cloudCeiling }
+                    { icon: <Wind size={20} />, value: data.wind.split('KT')[0] + 'kt', label: 'Wind' },
+                    { icon: <Eye size={20} />, value: data.visibility.replace(' (+/- SM/m)', '').toLowerCase().includes('sm') ? data.visibility.replace(' (+/- SM/m)', '').toLowerCase() : data.visibility.replace(' (+/- SM/m)', '') + 'sm', label: 'Vis' },
+                    { icon: <Cloud size={20} />, value: data.cloudCeiling === 'CLR/NSC' ? 'CLR' : data.cloudCeiling, label: 'Ceil' },
+                    { icon: <Thermometer size={20} />, value: data.tempDewPoint.split('/')[1] + '°', label: 'Dew' }
                 ].map((item, i) => (
-                    <div key={i} className="bg-slate-50 border border-slate-200 rounded-2xl p-5 flex flex-col justify-center text-center">
-                        <div className="flex items-center justify-center gap-2 text-slate-500 mb-2">
-                            {item.icon} <span className="text-xs font-bold uppercase tracking-widest">{item.label}</span>
-                        </div>
-                        <div className="text-xl font-black text-black leading-snug break-words">
-                            {item.value}
-                        </div>
+                    <div key={i} className="flex flex-col items-center justify-center text-center max-w-full overflow-hidden">
+                        <div className="text-white/90 mb-2 drop-shadow-md flex-shrink-0">{item.icon}</div>
+                        <div className="text-sm font-black leading-tight drop-shadow-sm mb-1 truncate w-full px-0.5">{item.value}</div>
+                        <div className="text-[10px] text-white/70 font-bold uppercase tracking-widest flex-shrink-0">{item.label}</div>
                     </div>
                 ))}
             </div>

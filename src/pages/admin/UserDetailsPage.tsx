@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import api from '../../lib/api'
 import { usersApi, imSafeApi, paveApi, flightApi } from '../../lib/apiClient'
 import type { UserResponseDto, ImSafeResponseDto, PaveResponseDto, FlightTripResponseDto } from '../../lib/types'
-import { ChevronLeft, RefreshCw } from 'lucide-react'
+import { ChevronLeft, RefreshCw, X } from 'lucide-react'
 import { AdvancedTrendChart, SystemPieChart } from '../../components/shared/AdvancedCharts'
 
 export function UserDetailsPage() {
@@ -13,6 +14,15 @@ export function UserDetailsPage() {
     const [flights, setFlights] = useState<FlightTripResponseDto[]>([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
+    const [selectedImage, setSelectedImage] = useState<string | null>(null)
+
+    const getAvatarSrc = (u: UserResponseDto) => {
+        if (u.profileImageUrl) {
+            if (u.profileImageUrl.startsWith('http')) return u.profileImageUrl
+            return api.defaults.baseURL + u.profileImageUrl
+        }
+        return `https://ui-avatars.com/api/?name=${encodeURIComponent(u.fullName || 'User')}&size=512&background=0284c7&color=fff`
+    }
 
     useEffect(() => {
         if (!id) return
@@ -55,15 +65,22 @@ export function UserDetailsPage() {
             </div>
 
             {/* Top User Info Bar */}
-            <div className="glass-card">
-                <div className="bg-slate-900 border-b-4 border-primary-500 rounded-t-2xl p-5 flex items-center justify-between">
+            <div className="glass-card shadow-sm border border-slate-200">
+                <div className="bg-gradient-to-r from-blue-100 via-blue-50 to-white border-b border-slate-200 rounded-t-2xl p-4 sm:p-5 flex items-center justify-between relative overflow-hidden">
+                    {/* Small accent bar top */}
+                    <div className="absolute top-0 left-0 right-0 h-1 bg-primary-500"></div>
+                    
                     <div className="flex items-center gap-4">
-                        <div className="w-16 h-16 rounded-full bg-slate-800 border-2 border-slate-700 flex items-center justify-center text-xl font-bold text-white shadow-xl">
-                            {user.fullName[0].toUpperCase()}
-                        </div>
+                        <img 
+                            src={getAvatarSrc(user)}
+                            alt={user.fullName}
+                            className="w-14 h-14 rounded-full object-cover shadow-sm bg-primary-50 border-2 border-primary-200 cursor-pointer hover:scale-105 hover:opacity-90 transition-all shrink-0"
+                            onClick={() => setSelectedImage(getAvatarSrc(user))}
+                            title="View Full Picture"
+                        />
                         <div>
-                            <div className="text-2xl font-black text-white">{user.fullName}</div>
-                            <div className="text-sm font-semibold text-primary-300">{user.email}</div>
+                            <div className="text-xl sm:text-2xl font-black text-black tracking-tight">{user.fullName}</div>
+                            <div className="text-xs sm:text-sm font-bold tracking-wide text-primary-600">{user.email}</div>
                         </div>
                     </div>
                     <div className="flex gap-2">
@@ -102,6 +119,27 @@ export function UserDetailsPage() {
                     <SystemPieChart assessments={assessments} />
                 </div>
             </div>
+
+            {/* Image Modal */}
+            {selectedImage && (
+                <div
+                    className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/50 backdrop-blur-md animate-fade-in p-4"
+                    onClick={() => setSelectedImage(null)}
+                >
+                    <button
+                        className="absolute top-8 right-8 p-3 rounded-full bg-slate-900/60 text-white hover:bg-slate-900 hover:scale-110 transition-all border-2 border-white/20"
+                        onClick={() => setSelectedImage(null)}
+                    >
+                        <X size={32} />
+                    </button>
+                    <img
+                        src={selectedImage}
+                        className="max-w-[90vw] max-h-[90vh] rounded-2xl shadow-2xl object-cover border-8 border-white animate-slide-up"
+                        alt="Zoomed Profile"
+                        onClick={(e) => e.stopPropagation()}
+                    />
+                </div>
+            )}
         </div>
     )
 }

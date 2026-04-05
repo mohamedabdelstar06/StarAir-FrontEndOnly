@@ -457,44 +457,58 @@ export function TripDetailPage() {
                 </div>
             </div>
 
-            {/* Flight Info Card */}
-            {flight.departure && <WeatherWidget icao={flight.departure} />}
-            <div className="glass-card overflow-hidden border-t-4 border-primary-500 mt-6">
-                <div className="px-6 pt-4 flex gap-4 text-base text-black">
-                    <span className="font-bold">{flight.flightCategory}</span>
-                    <span className="text-slate-600">•</span>
-                    <span className="text-slate-700">{flight.aircraftType}</span>
-                    <span className={clsx('ml-auto px-3 py-1 rounded-full text-xs font-black border',
-                        flight.status === 'Completed' ? 'bg-blue-100 text-blue-700 border-blue-200' :
-                            flight.status === 'Cleared' ? 'bg-green-100 text-green-700 border-green-200' :
-                                flight.status === 'Cancelled' ? 'bg-red-100 text-red-700 border-red-200' :
-                                    'bg-amber-100 text-amber-700 border-amber-200')}>
-                        {flight.status}
-                    </span>
+            {/* Flight Info and Weather Grid */}
+            <div className="flex flex-col lg:flex-row gap-6 mt-6">
+                {/* Flight Info Box (~65% width) */}
+                <div className="w-full lg:w-[65%] flex flex-col">
+                    <div className="glass-card overflow-hidden border-t-4 border-primary-500 h-full flex flex-col">
+                        <div className="px-6 pt-4 flex gap-4 text-base text-black flex-wrap items-center">
+                            <span className="font-bold whitespace-nowrap">{flight.flightCategory}</span>
+                            <span className="text-slate-600">•</span>
+                            <span className="text-slate-700 whitespace-nowrap">{flight.aircraftType}</span>
+                            <span className={clsx('ml-auto px-3 py-1 rounded-full text-xs font-black border uppercase tracking-widest',
+                                flight.status === 'Completed' ? 'bg-blue-100 text-blue-700 border-blue-200' :
+                                    flight.status === 'Cleared' ? 'bg-green-100 text-green-700 border-green-200' :
+                                        flight.status === 'Cancelled' ? 'bg-red-100 text-red-700 border-red-200' :
+                                            'bg-amber-100 text-amber-700 border-amber-200')}>
+                                {flight.status}
+                            </span>
+                        </div>
+                        <div className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-6 flex-1 items-center">
+                            <div className="flex items-center justify-between text-center bg-slate-50 p-5 rounded-2xl border border-slate-200 col-span-full xl:col-span-1 shadow-sm">
+                                <div className="flex-1">
+                                    <div className="text-black text-xs font-bold uppercase tracking-widest mb-1">Departure</div>
+                                    <div className="text-4xl font-black text-black tracking-tight">{flight.departure}</div>
+                                </div>
+                                <div className="px-4 flex flex-col items-center">
+                                    <Plane size={24} className="text-primary-500 rotate-90 opacity-80" />
+                                </div>
+                                <div className="flex-1">
+                                    <div className="text-black text-xs font-bold uppercase tracking-widest mb-1">Arrival</div>
+                                    <div className="text-4xl font-black text-black tracking-tight">{flight.arrival}</div>
+                                </div>
+                            </div>
+                            <div className="space-y-4 xl:pl-4">
+                                <div 
+                                    className="flex items-center gap-3 text-lg text-black font-semibold cursor-pointer hover:bg-slate-50 p-2 -ml-2 rounded-xl transition-all w-fit"
+                                    onClick={() => navigate(`/users/${flight.pilotId}`)}
+                                    title="View Pilot Deep Dive"
+                                >
+                                    <div className="p-2 bg-primary-50 text-primary-600 rounded-lg"><User size={18} /></div>
+                                    <span className="hover:text-primary-600 hover:underline">{flight.pilotName}</span>
+                                </div>
+                                <div className="flex items-center gap-3 text-lg text-black font-semibold">
+                                    <div className="p-2 bg-primary-50 text-primary-600 rounded-lg"><Calendar size={18} /></div>
+                                    {new Date(flight.departureTime).toLocaleString('en-US', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="flex items-center justify-between text-center bg-slate-50 p-5 rounded-2xl border border-slate-200 col-span-full md:col-span-1">
-                        <div className="flex-1">
-                            <div className="text-black text-sm font-bold uppercase tracking-widest mb-1">Departure</div>
-                            <div className="text-3xl font-black text-black">{flight.departure}</div>
-                        </div>
-                        <div className="px-4 flex flex-col items-center">
-                            <Plane size={24} className="text-primary-500 rotate-90" />
-                        </div>
-                        <div className="flex-1">
-                            <div className="text-black text-sm font-bold uppercase tracking-widest mb-1">Arrival</div>
-                            <div className="text-3xl font-black text-black">{flight.arrival}</div>
-                        </div>
-                    </div>
-                    <div className="space-y-2 flex flex-col justify-center">
-                        <div className="flex items-center gap-2 text-base text-black font-semibold">
-                            <User size={14} className="text-primary-500" /> {flight.pilotName}
-                        </div>
-                        <div className="flex items-center gap-2 text-base text-black font-semibold">
-                            <Calendar size={14} className="text-primary-500" />
-                            {new Date(flight.departureTime).toLocaleString()}
-                        </div>
-                    </div>
+
+                {/* Weather Widget (~35% width) */}
+                <div className="w-full lg:w-[35%] min-h-[360px]">
+                    {flight.departure && <WeatherWidget icao={flight.departure} />}
                 </div>
             </div>
 

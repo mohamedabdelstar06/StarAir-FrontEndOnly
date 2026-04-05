@@ -221,34 +221,37 @@ export function AdvancedTrendChart({
     const selectedDayData = selectedDate ? visibleDays.find(d => d.date === selectedDate) : null
 
     return (
-        <div className="bg-white rounded-2xl shadow-lg border-2 border-slate-100 overflow-hidden font-sans w-full">
+        <div className="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden font-sans w-full relative">
             {/* Header */}
-            <div className="bg-slate-900 border-b-4 border-primary-500 px-4 sm:px-6 py-4 sm:py-5 flex flex-wrap items-center justify-between gap-3 text-white rounded-t-2xl">
-                <div className="min-w-0">
-                    <h2 className="text-base sm:text-xl font-black tracking-wide italic truncate">{title}</h2>
-                    <div className="flex items-center gap-2 sm:gap-3 mt-2">
+            <div className="bg-gradient-to-r from-blue-100 via-blue-50 to-white border-b border-slate-200 flex flex-wrap items-center justify-between gap-3 text-black p-4 sm:p-5 rounded-t-2xl relative overflow-hidden">
+                {/* Subtle top accent */}
+                <div className="absolute top-0 left-0 right-0 h-1 bg-primary-500 opacity-90"></div>
+                
+                <div className="min-w-0 z-10">
+                    <h2 className="text-lg sm:text-xl font-black tracking-tighter truncate text-slate-900">{title}</h2>
+                    <div className="flex items-center gap-2 sm:gap-3 mt-1.5">
                         <button
                             onClick={handlePrev}
                             disabled={visibleStartIdx === 0}
-                            className="hover:text-primary-300 disabled:opacity-30 disabled:cursor-not-allowed transition-colors p-1"
+                            className="bg-slate-50 border border-slate-200 rounded p-1 hover:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors text-slate-600 shadow-sm"
                         >
-                            <ChevronLeft size={18} />
+                            <ChevronLeft size={16} />
                         </button>
-                        <span className="text-xs sm:text-sm font-semibold tracking-wider text-slate-300 whitespace-nowrap">
+                        <span className="text-xs sm:text-sm font-bold tracking-widest text-slate-500 uppercase whitespace-nowrap">
                             {dateRangeStr}
                         </span>
                         <button
                             onClick={handleNext}
                             disabled={visibleEndIdx >= days.length - 1}
-                            className="hover:text-primary-300 disabled:opacity-30 disabled:cursor-not-allowed transition-colors p-1"
+                            className="bg-slate-50 border border-slate-200 rounded p-1 hover:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors text-slate-600 shadow-sm"
                         >
-                            <ChevronRight size={18} />
+                            <ChevronRight size={16} />
                         </button>
                     </div>
                 </div>
-                <div className="text-right shrink-0">
-                    <div className="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-widest">Total in range</div>
-                    <div className="text-2xl sm:text-4xl font-black">{totalInRange}</div>
+                <div className="text-right shrink-0 z-10">
+                    <div className="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-widest">Total in range</div>
+                    <div className="text-2xl sm:text-3xl font-black text-black leading-none mt-0.5 tracking-tighter">{totalInRange}</div>
                 </div>
             </div>
 
@@ -404,29 +407,29 @@ export function AdvancedTrendChart({
                             }}
                         >
                             <div className="bg-white rounded shadow-xl border border-slate-200 px-3 py-2 sm:px-4 sm:py-3 min-w-[90px] sm:min-w-[120px]">
-                                <div className="text-sm text-slate-700 font-semibold mb-3">
+                                <div className="text-sm text-slate-900 font-black tracking-tight mb-3 border-b border-slate-100 pb-2">
                                     {visibleDays[hoveredIdx].dayName}
                                 </div>
-                                <div className="flex flex-col gap-1.5 sm:gap-2.5 text-xs sm:text-base font-medium tracking-wide">
+                                <div className="flex flex-col gap-1.5 sm:gap-2.5 text-xs sm:text-[13px] font-bold tracking-wide uppercase">
                                     <div className="flex items-center gap-2" style={{ color: COLORS.go }}>
                                         <span>go</span>
-                                        <span>:</span>
-                                        <span>{visibleDays[hoveredIdx].go}</span>
+                                        <span className="opacity-50">:</span>
+                                        <span className="text-black font-black">{visibleDays[hoveredIdx].go}</span>
                                     </div>
                                     <div className="flex items-center gap-2" style={{ color: COLORS.caution }}>
                                         <span>caution</span>
-                                        <span>:</span>
-                                        <span>{visibleDays[hoveredIdx].caution}</span>
+                                        <span className="opacity-50">:</span>
+                                        <span className="text-black font-black">{visibleDays[hoveredIdx].caution}</span>
                                     </div>
                                     <div className="flex items-center gap-2" style={{ color: COLORS.nogo }}>
                                         <span>nogo</span>
-                                        <span>:</span>
-                                        <span>{visibleDays[hoveredIdx].nogo}</span>
+                                        <span className="opacity-50">:</span>
+                                        <span className="text-black font-black">{visibleDays[hoveredIdx].nogo}</span>
                                     </div>
                                     <div className="flex items-center gap-2" style={{ color: COLORS.pending }}>
                                         <span>pending</span>
-                                        <span>:</span>
-                                        <span>{visibleDays[hoveredIdx].pending}</span>
+                                        <span className="opacity-50">:</span>
+                                        <span className="text-black font-black">{visibleDays[hoveredIdx].pending}</span>
                                     </div>
                                 </div>
                             </div>
@@ -441,14 +444,14 @@ export function AdvancedTrendChart({
                             key={i}
                             onClick={() => setSelectedDate(d.date === selectedDate ? null : d.date)}
                             className={clsx(
-                                'text-[10px] sm:text-xs font-bold tracking-wide sm:tracking-widest text-center flex-1 py-1.5 sm:py-2 rounded-lg cursor-pointer transition-all min-w-0',
+                                'text-[10px] sm:text-[11px] font-black tracking-tight text-center flex-1 py-1.5 sm:py-2 rounded-lg cursor-pointer transition-all min-w-0 uppercase',
                                 selectedDate === d.date
                                     ? 'bg-primary-600 text-white shadow-md'
-                                    : 'text-black hover:bg-slate-100'
+                                    : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900'
                             )}
                         >
                             <div className="truncate">{d.dayName}</div>
-                            <div className="text-[8px] sm:text-[9px] font-semibold mt-0.5 opacity-60 truncate">{d.shortDate}</div>
+                            <div className="text-[9px] font-bold mt-0.5 opacity-70 truncate">{d.shortDate}</div>
                         </div>
                     ))}
                 </div>

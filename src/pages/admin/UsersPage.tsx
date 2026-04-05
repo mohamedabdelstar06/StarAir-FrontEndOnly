@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import api from '../../lib/api'
 import { usersApi } from '../../lib/apiClient'
 import type { UserResponseDto, CreateUserDto, UpdateUserDto } from '../../lib/types'
 import { Plus, Search, UserCog, Loader2, X, RefreshCw, Trash2, Edit, Power } from 'lucide-react'
@@ -36,6 +37,15 @@ export function UsersPage() {
     const [updateForm, setUpdateForm] = useState<UpdateUserDto>({ fullName: '', totalFlightHours: 0 })
     const [saving, setSaving] = useState(false)
     const [formError, setFormError] = useState<string | null>(null)
+    const [selectedImage, setSelectedImage] = useState<string | null>(null)
+
+    const getAvatarSrc = (user: UserResponseDto) => {
+        if (user.profileImageUrl) {
+            if (user.profileImageUrl.startsWith('http')) return user.profileImageUrl
+            return api.defaults.baseURL + user.profileImageUrl
+        }
+        return `https://ui-avatars.com/api/?name=${encodeURIComponent(user.fullName || 'User')}&size=512&background=0284c7&color=fff`
+    }
 
     const load = async () => {
         setLoading(true)
@@ -113,14 +123,20 @@ export function UsersPage() {
                                 ) : filtered.map(u => (
                                     <tr key={u.id}>
                                         <td>
-                                            <div 
-                                                className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity" 
-                                                onClick={() => window.location.href = `/users/${u.id}`}
-                                            >
-                                                <div className="w-7 h-7 rounded-full bg-primary-700 flex items-center justify-center text-xs font-bold text-primary-200">
-                                                    {u.fullName[0]?.toUpperCase()}
-                                                </div>
-                                                <span className="font-bold text-primary-600 hover:underline">{u.fullName}</span>
+                                            <div className="flex items-center gap-3">
+                                                <img 
+                                                    src={getAvatarSrc(u)} 
+                                                    alt={u.fullName} 
+                                                    className="w-8 h-8 rounded-full object-cover cursor-pointer hover:opacity-80 hover:scale-110 transition-all shadow-sm border border-slate-200"
+                                                    onClick={() => setSelectedImage(getAvatarSrc(u))}
+                                                    title="View Profile Image"
+                                                />
+                                                <span 
+                                                    className="font-bold text-primary-600 hover:underline cursor-pointer" 
+                                                    onClick={() => window.location.href = `/users/${u.id}`}
+                                                >
+                                                    {u.fullName}
+                                                </span>
                                             </div>
                                         </td>
                                         <td className="text-black font-medium">{u.email}</td>
@@ -129,39 +145,36 @@ export function UsersPage() {
                                         <td><StatusBadge status={u.status} /></td>
                                         <td>
                                             <div className="flex items-center gap-2">
-                                                {/* Edit Button — Blue, clear */}
+                                                {/* Edit Button */}
                                                 <button
                                                     onClick={() => openEdit(u)}
-                                                    className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 transition-colors font-bold text-sm"
+                                                    className="w-9 h-9 flex items-center justify-center rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200 transition-transform hover:scale-105 shadow-sm"
                                                     title="Edit User"
                                                 >
                                                     <Edit size={16} />
-                                                    <span className="hidden lg:inline">Edit</span>
                                                 </button>
 
-                                                {/* Toggle Status — Green/Red, prominent */}
+                                                {/* Toggle Status */}
                                                 <button
                                                     onClick={() => handleToggle(u.id)}
                                                     className={clsx(
-                                                        'flex items-center gap-1.5 px-3 py-2 rounded-lg border transition-colors font-bold text-sm',
+                                                        'w-9 h-9 flex items-center justify-center rounded-lg border transition-transform hover:scale-105 shadow-sm',
                                                         u.status === 'Active'
-                                                            ? 'bg-green-50 text-green-700 border-green-200 hover:bg-green-100'
-                                                            : 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100'
+                                                            ? 'bg-amber-50 text-amber-600 border-amber-200 hover:bg-amber-100'
+                                                            : 'bg-green-50 text-green-600 border-green-200 hover:bg-green-100'
                                                     )}
                                                     title={u.status === 'Active' ? 'Deactivate User' : 'Activate User'}
                                                 >
                                                     <Power size={16} />
-                                                    <span className="hidden lg:inline">{u.status === 'Active' ? 'Deactivate' : 'Activate'}</span>
                                                 </button>
 
-                                                {/* Delete — Red, bold, clear */}
+                                                {/* Delete */}
                                                 <button
                                                     onClick={() => handleDelete(u.id, u.fullName)}
-                                                    className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-red-50 text-red-700 hover:bg-red-600 hover:text-white border border-red-200 hover:border-red-600 transition-colors font-bold text-sm"
+                                                    className="w-9 h-9 flex items-center justify-center rounded-lg bg-red-50 text-red-600 hover:bg-red-100 border border-red-200 transition-transform hover:scale-105 shadow-sm"
                                                     title="Delete User"
                                                 >
                                                     <Trash2 size={16} />
-                                                    <span className="hidden lg:inline">Delete</span>
                                                 </button>
                                             </div>
                                         </td>
@@ -184,7 +197,7 @@ export function UsersPage() {
                             </h2>
                             <button onClick={() => setShowModal(false)} className="text-slate-500 hover:text-black transition-colors"><X size={20} /></button>
                         </div>
-                        
+
                         {formError && (
                             <div className="flex items-center gap-4 bg-red-500 text-white p-5 rounded-xl shadow-lg mb-6 border-4 border-red-500">
                                 <div className="text-3xl">🚨</div>
@@ -279,6 +292,27 @@ export function UsersPage() {
                             </div>
                         </form>
                     </div>
+                </div>
+            )}
+
+            {/* Image Modal */}
+            {selectedImage && (
+                <div
+                    className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/50 backdrop-blur-md animate-fade-in p-4"
+                    onClick={() => setSelectedImage(null)}
+                >
+                    <button
+                        className="absolute top-8 right-8 p-3 rounded-full bg-slate-900/60 text-white hover:bg-slate-900 hover:scale-110 transition-all border-2 border-white/20"
+                        onClick={() => setSelectedImage(null)}
+                    >
+                        <X size={32} />
+                    </button>
+                    <img
+                        src={selectedImage}
+                        className="max-w-[90vw] max-h-[90vh] rounded-2xl shadow-2xl object-cover border-8 border-white animate-slide-up"
+                        alt="Zoomed Profile"
+                        onClick={(e) => e.stopPropagation()}
+                    />
                 </div>
             )}
         </div>
