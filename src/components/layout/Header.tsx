@@ -3,8 +3,9 @@ import { useUIStore } from '../../stores/uiStore'
 import { useAuthStore } from '../../stores/authStore'
 import { useNotificationStore, type AppNotification } from '../../stores/notificationStore'
 import { useEffect, useState, useRef } from 'react'
-import { useLocation, Link } from 'react-router-dom'
+import { useLocation, Link, useNavigate } from 'react-router-dom'
 import clsx from 'clsx'
+import { notificationApi, ServerNotification } from '../../api/notificationApi'
 
 const routeTitles: Record<string, string> = {
     '/dashboard': 'Dashboard',
@@ -21,37 +22,60 @@ const routeTitles: Record<string, string> = {
     '/profile': 'My Profile',
 }
 
-function NotificationItem({ n, onClose }: { n: AppNotification; onClose: () => void }) {
-    const markRead = useNotificationStore(s => s.markRead)
-    const timeAgo = getTimeAgo(n.timestamp)
+function NotificationItem({ n, onClose }: { n: AppNotification | ServerNotification; onClose: () => void }) {
+    const markReadLocal = useNotificationStore(s => s.markRead)
+    const navigate = useNavigate()
+
+    const isServer = 'isRead' in n;
+    const isRead = isServer ? (n as ServerNotification).isRead : (n as AppNotification).read;
+    const title = isServer ? 'System Notification' : (n as AppNotification).title;
+    const message = (n as AppNotification | ServerNotification).message;
+    const timestamp = isServer ? (n as ServerNotification).createdAt : (n as AppNotification).timestamp;
+    
+    const timeAgo = getTimeAgo(timestamp)
+
+    const handleClick = async () => {
+        if (isServer) {
+            await notificationApi.markAsRead((n as ServerNotification).id);
+            if ((n as ServerNotification).link) {
+                const linkUrl = new URL((n as ServerNotification).link as string);
+                navigate(linkUrl.pathname);
+            }
+        } else {
+            markReadLocal((n as AppNotification).id)
+        }
+        onClose();
+        // Fire custom event to trigger refresh
+        window.dispatchEvent(new Event('refreshNotifications'));
+    };
 
     return (
         <div
             className={clsx(
                 'px-4 py-3 border-b border-slate-200 hover:bg-primary-50 transition-colors cursor-pointer',
-                !n.read && 'bg-blue-50'
+                !isRead && 'bg-blue-50'
             )}
-            onClick={() => { markRead(n.id); onClose() }}
+            onClick={handleClick}
         >
             <div className="flex items-start justify-between gap-2">
                 <div className="flex-1 min-w-0">
-                    <div className="text-sm font-bold text-black">{n.title}</div>
-                    <div className="text-sm text-slate-600 mt-0.5 line-clamp-2">{n.message}</div>
-                    {n.assessmentType && n.assessmentResult && (
+                    <div className="text-sm font-bold text-black">{title}</div>
+                    <div className="text-sm text-slate-600 mt-0.5 line-clamp-2">{message}</div>
+                    {!isServer && (n as AppNotification).assessmentType && (n as AppNotification).assessmentResult && (
                         <div className="mt-1 flex items-center gap-2">
                             <span className={clsx('text-xs font-bold px-2 py-0.5 rounded-full',
                                 n.assessmentResult === 'Go' ? 'bg-green-100 text-green-700' :
-                                n.assessmentResult === 'Caution' ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700'
+                                    n.assessmentResult === 'Caution' ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700'
                             )}>
                                 {n.assessmentResult}
                             </span>
-                            {n.riskScore !== undefined && (
-                                <span className="text-xs text-slate-500 font-mono">Score: {n.riskScore}</span>
+                            {(n as AppNotification).riskScore !== undefined && (
+                                <span className="text-xs text-slate-500 font-mono">Score: {(n as AppNotification).riskScore}</span>
                             )}
                         </div>
                     )}
                 </div>
-                {!n.read && <span className="w-2 h-2 rounded-full bg-primary-500 flex-shrink-0 mt-1" />}
+                {!isRead && <span className="w-2 h-2 rounded-full bg-primary-500 flex-shrink-0 mt-1" />}
             </div>
             <div className="text-xs text-slate-400 mt-1">{timeAgo}</div>
         </div>
@@ -76,6 +100,45 @@ export function Header() {
     const [online, setOnline] = useState(navigator.onLine)
     const [showNotif, setShowNotif] = useState(false)
     const notifRef = useRef<HTMLDivElement>(null)
+    const [serverNotifs, setServerNotifs] = useState<ServerNotification[]>([])
+
+    const fetchServerNotifications = async () => {
+        try {
+            if (user) {
+                const notifs = await notificationApi.getMyNotifications();
+                setServerNotifs(notifs);
+            }
+        } catch (e) {
+            console.error('Failed to fetch notifications', e);
+        }
+    };
+
+    useEffect(() => {
+        fetchServerNotifications();
+        const interval = setInterval(fetchServerNotifications, 30000); // 30s poll
+        window.addEventListener('refreshNotifications', fetchServerNotifications);
+        return () => {
+            clearInterval(interval);
+            window.removeEventListener('refreshNotifications', fetchServerNotifications);
+        };
+    }, [user]);
+
+    const totalUnread = unreadCount + serverNotifs.filter(n => !n.isRead).length;
+    const allNotifs = [...serverNotifs, ...notifications].sort((a, b) => {
+        const tA = 'createdAt' in a ? new Date(a.createdAt).getTime() : new Date(a.timestamp).getTime();
+        const tB = 'createdAt' in b ? new Date(b.createdAt).getTime() : new Date(b.timestamp).getTime();
+        return tB - tA;
+    });
+
+    const handleMarkAllRead = async () => {
+        try {
+            await notificationApi.markAllAsRead();
+            markAllRead();
+            await fetchServerNotifications();
+        } catch (e) {
+            console.error(e);
+        }
+    };
 
     useEffect(() => {
         const on = () => setOnline(true)
@@ -123,9 +186,9 @@ export function Header() {
                         className="btn-icon relative"
                     >
                         <Bell size={18} className="text-black" />
-                        {unreadCount > 0 && (
+                        {totalUnread > 0 && (
                             <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center px-1">
-                                {unreadCount > 9 ? '9+' : unreadCount}
+                                {totalUnread > 9 ? '9+' : totalUnread}
                             </span>
                         )}
                     </button>
@@ -135,8 +198,8 @@ export function Header() {
                             <div className="px-4 py-3 border-b border-slate-200 flex items-center justify-between bg-slate-50">
                                 <h3 className="text-base font-bold text-black">Notifications</h3>
                                 <div className="flex items-center gap-2">
-                                    {unreadCount > 0 && (
-                                        <button onClick={markAllRead} className="text-xs font-semibold text-primary-600 hover:text-primary-700">
+                                    {totalUnread > 0 && (
+                                        <button onClick={handleMarkAllRead} className="text-xs font-semibold text-primary-600 hover:text-primary-700">
                                             Mark all read
                                         </button>
                                     )}
@@ -146,15 +209,15 @@ export function Header() {
                                 </div>
                             </div>
                             <div className="max-h-96 overflow-y-auto">
-                                {notifications.length === 0 ? (
-                                    <div className="px-4 py-8 text-center text-slate-500 text-sm">
-                                        No notifications yet
-                                    </div>
-                                ) : (
-                                    notifications.map(n => (
-                                        <NotificationItem key={n.id} n={n} onClose={() => setShowNotif(false)} />
-                                    ))
-                                )}
+                                        {allNotifs.length === 0 ? (
+                                            <div className="px-4 py-8 text-center text-slate-500 text-sm">
+                                                No notifications yet
+                                            </div>
+                                        ) : (
+                                            allNotifs.map(n => (
+                                                <NotificationItem key={'id' in n && 'createdAt' in n ? `server-${n.id}` : n.id} n={n} onClose={() => setShowNotif(false)} />
+                                            ))
+                                        )}
                             </div>
                         </div>
                     )}

@@ -9,8 +9,7 @@ export function LandingPage() {
     const navigate = useNavigate()
 
     // Determine where an already-authenticated user should land
-    const getDashboardPath = () =>
-        user?.roles.includes('Admin') ? '/dashboard' : '/imsafe'
+    const getDashboardPath = () => '/dashboard'
 
     const handleLoginClick = () => {
         if (isAuthenticated) navigate(getDashboardPath())
