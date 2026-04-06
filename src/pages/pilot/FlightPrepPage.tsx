@@ -127,12 +127,12 @@ function ImSafeCard({ item, value, onChange, expanded, onToggle }: {
     return (
         <div className="w-full bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm selection-none">
             {/* Header */}
-            <button type="button" onClick={onToggle} className="w-full flex items-center justify-between gap-4 px-5 py-4 hover:bg-slate-50 transition-colors text-left">
-                <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <div className="text-2xl flex-shrink-0 bg-blue-50 text-blue-600 w-12 h-12 flex items-center justify-center rounded-xl">{item.emoji}</div>
+            <button type="button" onClick={onToggle} className="w-full flex items-center justify-between gap-3 px-4 py-3 hover:bg-slate-50 transition-colors text-left">
+                <div className="flex items-center gap-2.5 flex-1 min-w-0">
+                    <div className="text-xl flex-shrink-0 bg-blue-50 text-blue-600 w-10 h-10 flex items-center justify-center rounded-lg">{item.emoji}</div>
                     <div className="flex-1 min-w-0">
-                        <div className="text-lg font-bold text-black leading-snug">{item.label}</div>
-                        <div className="text-sm text-slate-500 mt-0.5 truncate">{item.question}</div>
+                        <div className="text-2xl font-black text-black leading-snug">{item.label}</div>
+                        <div className="text-2xl font-bold text-black mt-1 truncate">{item.question}</div>
                     </div>
                 </div>
                 <ChevronRight size={20} className={clsx('text-slate-400 transition-transform flex-shrink-0', expanded && 'rotate-90')} />
@@ -143,7 +143,7 @@ function ImSafeCard({ item, value, onChange, expanded, onToggle }: {
                 <div className="px-5 pb-5 border-t border-slate-100 space-y-4 animate-slide-up pt-4">
                     {/* Self Assessment Row */}
                     <div className="flex items-center gap-3">
-                        <span className="text-xs font-black text-slate-500 uppercase tracking-widest">Self-Assessment:</span>
+                        <span className="text-base font-black text-black uppercase tracking-widest">Self-Assessment:</span>
                         <div className="flex gap-2">
                             {([1, 2, 3] as const).map(lvl => {
                                 const labels = { 1: 'LOW', 2: 'MEDIUM', 3: 'HIGH' }
@@ -154,7 +154,7 @@ function ImSafeCard({ item, value, onChange, expanded, onToggle }: {
                                 }
                                 return (
                                     <button key={lvl} type="button" onClick={() => onChange(lvl as RiskVal)}
-                                        className={clsx('px-3 py-1 rounded-lg text-xs font-bold transition-all', colors[lvl])}>
+                                        className={clsx('px-5 py-2.5 rounded-lg text-base font-bold transition-all', colors[lvl])}>
                                         {labels[lvl]}
                                     </button>
                                 )
@@ -162,17 +162,17 @@ function ImSafeCard({ item, value, onChange, expanded, onToggle }: {
                         </div>
                     </div>
 
-                    <ul className="space-y-3 mt-2">
+                    <ul className="space-y-4 mt-3">
                         {item.bullets.map((b, i) => (
-                            <li key={i} className="flex items-start gap-2 text-sm text-slate-600">
-                                <span className="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0 mt-1.5" />
+                            <li key={i} className="flex items-start gap-3 text-lg font-bold text-black">
+                                <span className="w-2.5 h-2.5 rounded-full bg-blue-500 flex-shrink-0 mt-2" />
                                 <span className="leading-relaxed">{b}</span>
                             </li>
                         ))}
                     </ul>
-                    <div className="bg-blue-50 border border-blue-100 rounded-xl px-4 py-3 mt-4">
-                        <div className="text-xs font-bold text-blue-700 mb-1">ADM / GRM Tie-in</div>
-                        <div className="text-sm text-blue-900">{item.tieIn}</div>
+                    <div className="bg-blue-50 border border-blue-100 rounded-xl px-5 py-4 mt-5">
+                        <div className="text-base font-black text-black mb-1">ADM / GRM Tie-in</div>
+                        <div className="text-lg font-bold text-black">{item.tieIn}</div>
                     </div>
                 </div>
             )}
@@ -186,15 +186,15 @@ function PaveChecklistCard({ category, checked, onCheck, expanded, onToggle }: {
     const doneCount = checked.filter(Boolean).length
     return (
         <div className="w-full bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
-            <button type="button" onClick={onToggle} className="w-full flex items-center justify-between gap-4 px-5 py-4 hover:bg-slate-50 transition-colors text-left">
-                <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <div className="text-2xl flex-shrink-0 bg-blue-50 text-blue-600 w-12 h-12 flex items-center justify-center rounded-xl">{category.emoji}</div>
+            <button type="button" onClick={onToggle} className="w-full flex items-center justify-between gap-3 px-4 py-3 hover:bg-slate-50 transition-colors text-left">
+                <div className="flex items-center gap-2.5 flex-1 min-w-0">
+                    <div className="text-xl flex-shrink-0 bg-blue-50 text-blue-600 w-10 h-10 flex items-center justify-center rounded-lg">{category.emoji}</div>
                     <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
-                            <span className="text-lg font-bold text-black leading-snug">{category.label}</span>
-                            <span className="text-xs font-medium text-slate-400">{doneCount}/{category.items.length}</span>
+                            <span className="text-xl font-black text-black leading-snug">{category.label}</span>
+                            <span className="text-sm font-bold text-slate-400">{doneCount}/{category.items.length}</span>
                         </div>
-                        <div className="text-sm text-slate-500 mt-0.5 truncate">{category.desc}</div>
+                        <div className="text-base font-bold text-black mt-1 truncate">{category.desc}</div>
                     </div>
                 </div>
                 <ChevronRight size={20} className={clsx('text-slate-400 transition-transform flex-shrink-0', expanded && 'rotate-90')} />
@@ -216,8 +216,8 @@ function PaveChecklistCard({ category, checked, onCheck, expanded, onToggle }: {
                                     {isChecked && <Check size={14} strokeWidth={3} />}
                                 </div>
                                 <span className={clsx(
-                                    'text-sm leading-relaxed transition-all',
-                                    isChecked ? 'text-slate-400 line-through' : 'text-slate-700 font-medium'
+                                    'text-lg leading-relaxed transition-all',
+                                    isChecked ? 'text-slate-400 line-through' : 'text-black font-bold'
                                 )}>
                                     {item}
                                 </span>
@@ -257,32 +257,79 @@ function SystemPieChart({ percentage, color, size = 80 }: { percentage: number; 
 }
 
 // ─── Result Card ──────────────────────────────────────────────────────────────
-function ResultCard({ result, score, outOf }: { result: string; score: number; outOf: number }) {
-    const okPercent = Math.max(0, Math.round((1 - score / outOf) * 100))
-    const cfg = result === 'Go'
-        ? { bg: 'bg-green-50 border-green-300', text: 'text-green-700', msg: 'Cleared for flight operations', color: '#16a34a' }
+// ─── Result Card ──────────────────────────────────────────────────────────────
+function ResultCard({ result, score, outOf, invertScore = false }: { result: string; score: number; outOf: number; invertScore?: boolean }) {
+    const dangerPercent = Math.max(0, Math.min(100, Math.round((score / outOf) * 100)))
+    const okPercent = invertScore ? 100 - dangerPercent : dangerPercent
+    
+    const cfg = result === 'Go' || result === 'Completed' || result === 'Fit'
+        ? { bg: 'bg-green-50 border-green-300', text: 'text-green-700', msg: result === 'Completed' ? 'All Steps Completed' : result === 'Fit' ? 'Biometrics Optimal' : 'Cleared for flight operations', color: '#16a34a' }
         : result === 'Caution'
             ? { bg: 'bg-amber-50 border-amber-300', text: 'text-amber-700', msg: 'Proceed with extra caution', color: '#d97706' }
-            : { bg: 'bg-red-50 border-red-300', text: 'text-red-700', msg: 'Do NOT fly today', color: '#dc2626' }
+            : { bg: 'bg-red-50 border-red-300', text: 'text-red-700', msg: 'Pending safe completion', color: '#dc2626' }
+            
     return (
         <div className={clsx('rounded-2xl border-2 p-5 flex items-center gap-5 animate-slide-up', cfg.bg)}>
             <SystemPieChart percentage={okPercent} color={cfg.color} size={80} />
             <div>
-                <div className={clsx('text-2xl font-black', cfg.text)}>{result}</div>
-                <div className="text-sm text-slate-800 font-bold mt-0.5">{cfg.msg}</div>
-                <div className="text-xs text-slate-500 mt-1 font-semibold">Risk Score: <span className="font-mono font-black text-slate-800">{score}/{outOf}</span></div>
-                <div className={clsx('text-xs font-bold mt-1', cfg.text)}>{okPercent}% OK rate</div>
+                <div className={clsx('text-2xl font-black text-black')}>{result}</div>
+                <div className="text-base text-black font-bold mt-0.5">{cfg.msg}</div>
+                <div className="text-sm text-black mt-1 font-semibold">{invertScore ? 'Risk Score' : 'Progress'}: <span className="font-mono font-black">{score}/{outOf}</span></div>
+                <div className={clsx('text-sm font-bold mt-1 text-black')}>{okPercent}% OK rate</div>
             </div>
         </div>
     )
 }
 
+const computeImSafeRisk = (form: any) => {
+    let risk = 0; let highAlcohol = false; let highIllness = false; let highFatigue = false; let highStress = false; let highMed = false
+    const val = (v: number) => v === 1 ? 1 : v === 2 ? 2 : v === 3 ? 3 : 0
+    const i = val(form.illnessLevel); if(i===3) highIllness = true; risk += i;
+    const m = val(form.medicationLevel); if(m===3) highMed = true; risk += m;
+    const s = val(form.stressLevel); if(s===3) highStress = true; risk += s;
+    const a = val(form.alcoholLevel); if(a===3) highAlcohol = true; risk += a;
+    const f = val(form.fatigueLevel); if(f===3) highFatigue = true; risk += f;
+    const e = val(form.emotionLevel); risk += e;
+    
+    if (highAlcohol) risk = Math.max(risk, 13)
+    if (highIllness) risk = Math.max(risk, 13)
+    if (highFatigue && (form.hoursSlept || 8) < 4) risk = Math.max(risk, 13)
+    if (highStress) risk = Math.max(risk, 9)
+    if (highMed) risk = Math.max(risk, 9)
+    
+    let result = 'Go'
+    if (risk >= 13) result = 'NoGo'
+    else if (risk >= 9) result = 'Caution'
+    return { score: risk, result }
+}
+
+const computePaveRisk = (checked: Record<string, boolean[]>) => {
+    const mapRisk = (arr: boolean[]) => {
+        const unchecked = arr.filter(c => !c).length
+        if (unchecked === 0) return 0
+        if (unchecked === 1) return 1
+        if (unchecked === 2) return 2
+        return 3
+    }
+    const p = mapRisk(checked.pilot)
+    const a = mapRisk(checked.aircraft)
+    const e = mapRisk(checked.environment)
+    const x = mapRisk(checked.external)
+    let risk = p + a + e + x
+    if (a === 3) risk = Math.max(risk, 6)
+    
+    let result = 'Go'
+    if (risk >= 6) result = 'NoGo'
+    else if (risk >= 3) result = 'Caution'
+    return { score: risk, result }
+}
+
 // ─── Step indicator ───────────────────────────────────────────────────────────
 const STEPS = [
-    { key: 'smartwatch', label: 'SmartWatch', icon: Watch, color: 'text-cyan-400', bg: 'bg-cyan-500/10 border-cyan-500/30' },
-    { key: 'imsafe', label: 'IMSAFE', icon: ShieldCheck, color: 'text-blue-400', bg: 'bg-blue-500/10 border-blue-500/30' },
-    { key: 'pave', label: 'PAVE', icon: ClipboardCheck, color: 'text-purple-400', bg: 'bg-purple-500/10 border-purple-500/30' },
-    { key: 'decide', label: 'DECIDE', icon: Brain, color: 'text-amber-400', bg: 'bg-amber-500/10 border-amber-500/30' },
+    { key: 'smartwatch', label: 'SmartWatch', icon: Watch, color: 'text-purple-600', bg: 'bg-purple-500/10 border-purple-500/30' },
+    { key: 'imsafe', label: 'IMSAFE', icon: ShieldCheck, color: 'text-purple-600', bg: 'bg-purple-500/10 border-purple-500/30' },
+    { key: 'pave', label: 'PAVE', icon: ClipboardCheck, color: 'text-purple-600', bg: 'bg-purple-500/10 border-purple-500/30' },
+    { key: 'decide', label: 'DECIDE', icon: Brain, color: 'text-purple-600', bg: 'bg-purple-500/10 border-purple-500/30' },
 ]
 
 const DECIDE_STEPS = [
@@ -559,6 +606,8 @@ export function FlightPrepPage() {
             await decideApi.completeSession(sId)
             if (flight && sId) {
                 await flightApi.link(flight.id, { decideSessionId: sId })
+                // Mark the trip as completely evaluated
+                await flightApi.complete(flight.id)
             }
             loadFlight()
             setActiveStep(null) // all done
@@ -581,70 +630,26 @@ export function FlightPrepPage() {
 
         // ── SmartWatch Panel ──
         if (activeStep === 0) {
-            if (swDone && swAnalysis) {
-                return (
-                    <div className="space-y-4">
-                        <div className={clsx('rounded-xl border p-5',
-                            swAnalysis.fitnessStatus === 'Fit' ? 'bg-green-500/10 border-green-500/30' :
-                                swAnalysis.fitnessStatus === 'Caution' ? 'bg-amber-500/10 border-amber-500/30' : 'bg-red-500/10 border-red-500/30')}>
-                            <div className="flex items-center gap-3 mb-3">
-                                <Watch size={24} className={
-                                    swAnalysis.fitnessStatus === 'Fit' ? 'text-green-400' :
-                                        swAnalysis.fitnessStatus === 'Caution' ? 'text-amber-400' : 'text-red-400'
-                                } />
-                                <div>
-                                    <div className="text-xs text-slate-500 uppercase tracking-widest">Fitness Status</div>
-                                    <div className={clsx('text-xl font-bold',
-                                        swAnalysis.fitnessStatus === 'Fit' ? 'text-green-400' :
-                                            swAnalysis.fitnessStatus === 'Caution' ? 'text-amber-400' : 'text-red-400')}>
-                                        {swAnalysis.fitnessStatus}
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-center mb-3">
-                                {[
-                                    { label: 'Heart Rate', value: `${swAnalysis.latestHeartRate ?? '–'} bpm`, color: 'text-blue-400' },
-                                    { label: 'Avg Sleep', value: `${swAnalysis.averageSleepHours ?? '–'} h`, color: 'text-purple-400' },
-                                    { label: 'Avg Stress', value: `${swAnalysis.averageStressIndex ?? '–'} /100`, color: 'text-amber-400' },
-                                    { label: 'Avg SpO₂', value: `${swAnalysis.averageSpO2 ?? '–'} %`, color: 'text-green-400' },
-                                ].map(m => (
-                                    <div key={m.label} className="glass-card-sm p-3">
-                                        <div className={clsx('text-lg font-bold font-mono', m.color)}>{m.value}</div>
-                                        <div className="text-[10px] text-slate-500 uppercase font-semibold mt-1">{m.label}</div>
-                                    </div>
-                                ))}
-                            </div>
-                            <p className="text-xs text-slate-400">💡 {swAnalysis.recommendation}</p>
-                        </div>
-                        <div className="flex justify-end">
-                            <button onClick={() => setActiveStep(1)}
-                                className="btn-primary flex items-center gap-2 px-8 py-3 text-base">
-                                Next: IMSAFE Assessment <ArrowRight size={18} />
-                            </button>
-                        </div>
-                    </div>
-                )
-            }
-            // SmartWatch — scan + simulate UI
             return (
-                <div className="space-y-5">
+                <div className="space-y-6 animate-fade-in">
+                    {/* Always show scan capabilities as requested */}
                     <div className="bg-slate-50 border-2 border-slate-200 rounded-2xl p-6 text-center space-y-4">
-                        <div className="text-5xl">⌚</div>
-                        <h3 className="text-2xl font-black text-black">Connect SmartWatch</h3>
-                        <p className="text-base text-slate-600">Automatically detect your nearby Bluetooth smartwatch, or simulate with qualified pilot biometric data.</p>
+                        <div className="text-4xl">⌚</div>
+                        <h3 className="text-xl font-black text-black">Connect SmartWatch</h3>
+                        <p className="text-sm text-slate-600">Automatically detect your nearby Bluetooth smartwatch, or simulate with qualified pilot biometric data.</p>
 
                         {scanState === 'idle' && (
-                            <button type="button" onClick={startScan}
-                                className="inline-flex items-center gap-3 px-10 py-4 bg-primary-600 hover:bg-primary-700 text-white font-bold text-lg rounded-2xl transition-all shadow-lg">
-                                <Signal size={22} /> 🔍 Search for Nearby SmartWatch
+                            <button type="button" onClick={() => { setSwDone(false); startScan(); }}
+                                className="inline-flex items-center gap-2 px-8 py-3 bg-primary-600 hover:bg-primary-700 text-white font-bold text-base rounded-xl transition-all shadow-lg">
+                                <Signal size={18} /> 🔍 Search for Nearby SmartWatch
                             </button>
                         )}
 
                         {scanState === 'scanning' && (
                             <div className="space-y-3">
                                 <div className="flex items-center justify-center gap-3 text-primary-600">
-                                    <Loader2 size={22} className="animate-spin" />
-                                    <span className="text-lg font-bold">Scanning for devices...</span>
+                                    <Loader2 size={18} className="animate-spin" />
+                                    <span className="text-base font-bold">Scanning for devices...</span>
                                 </div>
                                 <div className="w-full max-w-xs mx-auto bg-slate-200 rounded-full h-3 overflow-hidden">
                                     <div className="h-full bg-gradient-to-r from-primary-500 to-cyan-500 rounded-full transition-all duration-300" style={{ width: `${scanProgress}%` }} />
@@ -662,7 +667,7 @@ export function FlightPrepPage() {
                                 <div className="inline-flex items-center gap-2 px-5 py-3 bg-amber-50 border-2 border-amber-300 text-amber-700 font-bold rounded-xl">
                                     ⚠️ No SmartWatch Detected
                                 </div>
-                                <p className="text-base text-slate-600">No compatible device found. You can simulate using pre-loaded qualified pilot biometrics.</p>
+                                <p className="text-sm text-slate-600">No compatible device found. You can simulate using pre-loaded qualified pilot biometrics.</p>
                                 <div className="flex gap-3 justify-center flex-wrap">
                                     <button type="button" onClick={() => setScanState('idle')}
                                         className="px-6 py-3 border-2 border-slate-300 text-slate-700 font-bold rounded-xl hover:bg-slate-100 transition-all">
@@ -677,8 +682,8 @@ export function FlightPrepPage() {
                                 <div className="grid grid-cols-3 gap-3 mt-2">
                                     {[{e:'❤️',l:'Heart Rate',v:'66 bpm'},{e:'📋',l:'HRV',v:'58 ms'},{e:'😴',l:'Sleep',v:'7.5 hrs'},{e:'💤',l:'Quality',v:'84/100'},{e:'🧠',l:'Stress',v:'22/100'},{e:'🫱',l:'SpO₂',v:'98%'}].map(d => (
                                         <div key={d.l} className="bg-white rounded-xl p-3 border border-slate-200 text-center">
-                                            <div className="text-2xl">{d.e}</div>
-                                            <div className="text-base font-black text-black">{d.v}</div>
+                                            <div className="text-xl">{d.e}</div>
+                                            <div className="text-sm font-black text-black">{d.v}</div>
                                             <div className="text-[10px] text-slate-500 uppercase font-bold">{d.l}</div>
                                         </div>
                                     ))}
@@ -704,7 +709,7 @@ export function FlightPrepPage() {
                                         <input type="number" min={min} max={max} step={step ?? 1}
                                             value={(swForm as any)[key] ?? ''}
                                             onChange={e => setSwForm(f => ({ ...f, [key]: e.target.value ? Number(e.target.value) : undefined }))}
-                                            className="w-full bg-white border-2 border-slate-300 rounded-xl px-4 py-3 text-black outline-none text-base font-mono" />
+                                            className="w-full bg-white border-2 border-slate-300 rounded-xl px-3 py-2.5 text-black outline-none text-sm font-mono" />
                                     </div>
                                 ))}
                             </div>
@@ -722,9 +727,11 @@ export function FlightPrepPage() {
 
         // ── IMSAFE Panel ──
         if (activeStep === 1) { 
+            const liveImScore = [imForm.illnessLevel, imForm.medicationLevel, imForm.stressLevel, imForm.alcoholLevel, imForm.fatigueLevel, imForm.emotionLevel].filter(v => typeof v === 'number' && (v === 1 || v === 0)).length
+            const imMax = 6
             return (
                 <form onSubmit={handleImSubmit} className="space-y-3">
-                    {imResult && <ResultCard result={imResult.result} score={imResult.overallRiskScore} outOf={18} />}
+                    <ResultCard result={liveImScore === imMax ? 'Go' : 'Pending'} score={liveImScore} outOf={imMax} />
                     <div className="space-y-3">
                         {IMSAFE_ITEMS.map(item => {
                             const formKey = `${item.key}Level` as keyof CreateImSafeDto
@@ -741,7 +748,7 @@ export function FlightPrepPage() {
                         })}
                     </div>
                     <div className="flex justify-end pt-4">
-                        <button type="submit" disabled={imSaving} className="btn-primary flex items-center gap-2 px-10 py-4 text-base font-bold">
+                        <button type="submit" disabled={imSaving} className="btn-primary flex items-center gap-2 px-8 py-3 text-sm font-bold">
                             {imSaving ? <Loader2 size={18} className="animate-spin" /> : null}
                             Submit IMSAFE & Next: PAVE <ArrowRight size={18} />
                         </button>
@@ -791,9 +798,11 @@ export function FlightPrepPage() {
                 } finally { setPaveSaving(false) }
             }
 
+            const livePave = computePaveRisk(paveChecked)
+            const paveMax = 12
             return (
                 <form onSubmit={handlePaveCheckSubmit} className="space-y-3">
-                    {paveResult && <ResultCard result={paveResult.result} score={paveResult.overallRiskScore} outOf={12} />}
+                    <ResultCard result={livePave.result} score={livePave.score} outOf={paveMax} invertScore />
                     <div className="space-y-3">
                         {PAVE_CATEGORIES.map(cat => (
                             <PaveChecklistCard
@@ -824,15 +833,7 @@ export function FlightPrepPage() {
             if (decideDone) {
                 return (
                     <div className="space-y-4 animate-slide-up">
-                        <div className="rounded-2xl border-2 p-5 flex items-center gap-5 bg-green-50 border-green-300">
-                            <SystemPieChart percentage={100} color="#16a34a" size={80} />
-                            <div>
-                                <div className="text-2xl font-black text-green-700">DECIDE</div>
-                                <div className="text-sm text-slate-800 font-bold mt-0.5">6 / 6 Steps Completed</div>
-                                <div className="text-xs text-slate-500 mt-1 font-semibold">Status: <span className="text-green-600">Completed</span></div>
-                                <div className="text-xs font-bold mt-1 text-green-700">100% complete</div>
-                            </div>
-                        </div>
+                        <ResultCard result="Completed" score={6} outOf={6} />
                     </div>
                 )
             }
@@ -841,12 +842,12 @@ export function FlightPrepPage() {
                     {DECIDE_STEPS.map((s, i) => (
                         <div key={i} className={clsx('rounded-xl border p-5 space-y-4', s.bg)}>
                             <div>
-                                <div className={clsx('text-xs font-semibold uppercase tracking-wider', s.color)}>Step {i + 1} of {DECIDE_STEPS.length}</div>
-                                <div className="text-lg font-bold text-slate-100 mt-1">{s.label}</div>
-                                <div className="text-sm text-slate-400 mt-0.5 leading-relaxed">{s.desc}</div>
+                                <div className={clsx('text-sm font-bold uppercase tracking-wider', s.color)}>Step {i + 1} of {DECIDE_STEPS.length}</div>
+                                <div className="text-3xl font-black text-black mt-1">{s.label}</div>
+                                <div className="text-lg font-bold text-black mt-1 leading-relaxed">{s.desc}</div>
                             </div>
-                            <div className="space-y-4 mt-4">
-                                <div className="text-sm font-black text-black">Action:</div>
+                            <div className="space-y-4 mt-5">
+                                <div className="text-base font-black text-black">Action:</div>
                                 <div className="flex gap-4">
                                     {['Observed', 'Decided'].map(act => (
                                         <button key={act} type="button" onClick={() => setDecideInputs(prev => ({ ...prev, [i]: act }))}
@@ -865,6 +866,48 @@ export function FlightPrepPage() {
                             Submit DECIDE Form
                         </button>
                     </div>
+
+                    {swDone && swAnalysis && (
+                        <div className={clsx('rounded-xl border p-5 animate-slide-up',
+                            swAnalysis.fitnessStatus === 'Fit' ? 'bg-green-500/10 border-green-500/30' :
+                                swAnalysis.fitnessStatus === 'Caution' ? 'bg-amber-500/10 border-amber-500/30' : 'bg-red-500/10 border-red-500/30')}>
+                            <div className="flex items-center gap-3 mb-3">
+                                <Watch size={24} className={
+                                    swAnalysis.fitnessStatus === 'Fit' ? 'text-green-400' :
+                                        swAnalysis.fitnessStatus === 'Caution' ? 'text-amber-400' : 'text-red-400'
+                                } />
+                                <div>
+                                    <div className="text-xs text-slate-500 uppercase tracking-widest">Fitness Status</div>
+                                    <div className={clsx('text-xl font-bold',
+                                        swAnalysis.fitnessStatus === 'Fit' ? 'text-green-400' :
+                                            swAnalysis.fitnessStatus === 'Caution' ? 'text-amber-400' : 'text-red-400')}>
+                                        {swAnalysis.fitnessStatus}
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-center mb-3">
+                                {[
+                                    { label: 'Heart Rate', value: `${swAnalysis.latestHeartRate ?? '–'} bpm`, color: 'text-blue-400' },
+                                    { label: 'Avg Sleep', value: `${swAnalysis.averageSleepHours ?? '–'} h`, color: 'text-purple-400' },
+                                    { label: 'Avg Stress', value: `${swAnalysis.averageStressIndex ?? '–'} /100`, color: 'text-amber-400' },
+                                    { label: 'Avg SpO₂', value: `${swAnalysis.averageSpO2 ?? '–'} %`, color: 'text-green-400' },
+                                ].map(m => (
+                                    <div key={m.label} className="glass-card-sm p-3">
+                                        <div className={clsx('text-lg font-bold font-mono', m.color)}>{m.value}</div>
+                                        <div className="text-[10px] text-slate-500 uppercase font-semibold mt-1">{m.label}</div>
+                                    </div>
+                                ))}
+                            </div>
+                            <p className="text-xs text-slate-400 font-semibold mt-2">💡 {swAnalysis.recommendation}</p>
+                            
+                            <div className="flex justify-end mt-4">
+                                <button onClick={() => setActiveStep(1)}
+                                    className="btn-primary flex items-center gap-2 px-8 py-3 text-base">
+                                    Next: IMSAFE Assessment <ArrowRight size={18} />
+                                </button>
+                            </div>
+                        </div>
+                    )}
                 </div>
             )
         }
@@ -874,54 +917,63 @@ export function FlightPrepPage() {
 
     return (
         <div className="w-full px-4 xl:px-8 pb-12 flex flex-col gap-6 animate-fade-in items-start">
-            {/* Header and Flight Info Box */}
-            <div className="w-full space-y-6">
-                {/* Header */}
+            {/* Header */}
             <div className="flex items-center gap-4">
-                <Link to="/dashboard" className="btn-icon"><ChevronLeft size={20} /></Link>
+                <Link to="/dashboard" className="p-2 rounded-xl border-2 border-slate-200 hover:bg-slate-100 transition-all">
+                    <ChevronLeft size={20} className="text-black" />
+                </Link>
                 <div>
-                    <h1 className="text-2xl font-black text-black uppercase tracking-tighter">Mission Preparation</h1>
-                    <p className="text-sm text-slate-600 font-bold uppercase tracking-widest">{flight.flightNumber || 'UNTITLED TRIP'}</p>
+                    <h1 className="text-xl font-black text-black uppercase tracking-tight">Mission Preparation</h1>
+                    <p className="text-sm text-slate-600 font-bold uppercase tracking-widest">{flight.flightNumber || `Trip #${flight.id}`}</p>
                 </div>
             </div>
 
-            {/* Flight Info Card */}
-            <div className="glass-card overflow-hidden border-t-4 border-primary-500">
-                {/* Category + Aircraft */}
-                <div className="px-6 pt-4 flex gap-4 text-sm text-black">
-                    <span className="font-bold">{flight.flightCategory}</span>
-                    <span className="text-slate-600">•</span>
-                    <span className="text-slate-700">{flight.aircraftType}</span>
+            {/* Flight Info and Weather Grid */}
+            <div className="w-full flex flex-col lg:flex-row gap-6 mt-6">
+                {/* Flight Info Box (~65% width) */}
+                <div className="w-full lg:w-[65%] flex flex-col">
+                    <div className="glass-card overflow-hidden border-t-4 border-primary-500 h-full flex flex-col">
+                        <div className="px-6 pt-4 flex gap-4 text-base text-black flex-wrap items-center">
+                            <span className="font-bold whitespace-nowrap">{flight.flightCategory}</span>
+                            <span className="text-slate-600">•</span>
+                            <span className="text-slate-700 whitespace-nowrap">{flight.aircraftType}</span>
+                            <span className={clsx('ml-auto px-3 py-1 rounded-full text-xs font-black border uppercase tracking-widest',
+                                flight.status === 'Completed' ? 'bg-blue-100 text-blue-700 border-blue-200' :
+                                    flight.status === 'Cleared' ? 'bg-green-100 text-green-700 border-green-200' :
+                                        flight.status === 'Cancelled' ? 'bg-red-100 text-red-700 border-red-200' :
+                                            'bg-amber-100 text-amber-700 border-amber-200')}>
+                                {flight.status}
+                            </span>
+                        </div>
+                        <div className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-6 flex-1 items-center">
+                            <div className="flex items-center justify-between text-center bg-slate-50 p-5 rounded-2xl border border-slate-200 col-span-full xl:col-span-1 shadow-sm">
+                                <div className="flex-1">
+                                    <div className="text-black text-xs font-bold uppercase tracking-widest mb-1">Departure</div>
+                                    <div className="text-3xl font-black text-black tracking-tight">{flight.departure}</div>
+                                </div>
+                                <div className="px-4 flex flex-col items-center">
+                                    <Plane size={24} className="text-primary-500 rotate-90 opacity-80" />
+                                </div>
+                                <div className="flex-1">
+                                    <div className="text-black text-xs font-bold uppercase tracking-widest mb-1">Arrival</div>
+                                    <div className="text-3xl font-black text-black tracking-tight">{flight.arrival}</div>
+                                </div>
+                            </div>
+                            <div className="space-y-4 xl:pl-4">
+                                <div className="flex items-center gap-3 text-lg text-black font-semibold">
+                                    <div className="p-2 bg-primary-50 text-primary-600 rounded-lg"><Calendar size={18} /></div>
+                                    {new Date(flight.departureTime).toLocaleString('en-US', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div className="p-6 grid grid-cols-1 gap-6">
-                    <div className="flex items-center justify-between text-center bg-slate-50 p-5 rounded-2xl border border-slate-200 col-span-full md:col-span-1">
-                        <div className="flex-1">
-                            <div className="text-black text-sm font-bold uppercase tracking-widest mb-1">Departure</div>
-                            <div className="text-3xl font-black text-black">{flight.departure}</div>
-                        </div>
-                        <div className="px-4 flex flex-col items-center">
-                            <Plane size={24} className="text-primary-500 rotate-90" />
-                        </div>
-                        <div className="flex-1">
-                            <div className="text-black text-sm font-bold uppercase tracking-widest mb-1">Arrival</div>
-                            <div className="text-3xl font-black text-black">{flight.arrival}</div>
-                        </div>
-                    </div>
-                    <div className="space-y-2 flex flex-col justify-center">
-                        <div className="flex items-center gap-2 text-sm text-black"><Calendar size={14} className="text-primary-500" /> {new Date(flight.departureTime).toLocaleDateString()}</div>
-                        <div className="flex items-center gap-2 text-sm text-black"><Clock size={14} className="text-primary-500" /> {new Date(flight.departureTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
-                        <div className={clsx('text-xs font-black uppercase tracking-widest mt-2 px-3 py-1.5 rounded-lg w-fit',
-                            flight.status === 'Cleared' ? 'bg-green-500/10 text-green-400' :
-                                flight.status === 'Completed' ? 'bg-blue-500/10 text-blue-400' : 'bg-amber-500/10 text-amber-400')}>
-                            Status: {flight.status}
-                        </div>
-                    </div>
+
+                {/* Weather Widget (~35% width) */}
+                <div className="w-full lg:w-[35%] min-h-[300px]">
+                    {flight.departure && <WeatherWidget icao={flight.departure} />}
                 </div>
             </div>
-
-            {/* Weather Element */}
-            {flight.departure && <WeatherWidget icao={flight.departure} />}
-        </div>
         
         {/* Right Content (Forms & steps) */}
         <div className="w-full space-y-6">
@@ -961,10 +1013,10 @@ export function FlightPrepPage() {
                                             canOpen ? 'border-slate-300 hover:border-slate-400 bg-white cursor-pointer' :
                                                 'border-slate-200 bg-slate-50 opacity-50 cursor-not-allowed'
                                 )}>
-                                <div className={clsx('p-3 rounded-xl mb-3', done ? 'bg-green-500/10 text-green-600' : isActive ? step.color : 'bg-slate-200 text-slate-700')}>
-                                    <Icon size={32} />
+                                <div className={clsx('p-4 rounded-xl mb-4', done ? 'bg-green-500/10 text-green-600' : isActive ? step.color : 'bg-slate-200 text-slate-700')}>
+                                    <Icon size={40} />
                                 </div>
-                                <div className="text-lg font-black text-black mb-2">{step.label}</div>
+                                <div className="text-xl font-black text-black mb-2">{step.label}</div>
                                 {done ? (
                                     <div className="text-base text-green-700 font-black uppercase flex items-center gap-2">
                                         <CheckCircle size={18} /> Done
@@ -1002,7 +1054,7 @@ export function FlightPrepPage() {
             {activeStep !== null && (
                 <div className="glass-card p-6 space-y-5 animate-slide-up border-t-4" style={{ borderTopColor: ['#22d3ee', '#3b82f6', '#a855f7', '#f59e0b'][activeStep] }}>
                     <div className="flex items-center justify-between border-b border-cockpit-700/50 pb-4">
-                        <h3 className="text-xl font-black text-black flex items-center gap-3">
+                        <h3 className="text-lg font-black text-black flex items-center gap-2">
                             {(() => { const S = STEPS[activeStep]; const Icon = S.icon; return <Icon size={22} className={S.color} /> })()}
                             {STEPS[activeStep].label} Assessment
                         </h3>

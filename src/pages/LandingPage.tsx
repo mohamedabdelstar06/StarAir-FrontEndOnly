@@ -29,8 +29,8 @@ export function LandingPage() {
             <header className="border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 top-0 z-50 sticky transition-none">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-3">
                     <div className="flex items-center gap-2">
-                        <span className="text-2xl sm:text-3xl font-black text-primary-600 dark:text-primary-400">STAR</span>
-                        <span className="text-2xl sm:text-3xl font-light text-slate-800 dark:text-slate-100">Air</span>
+                        <span className="text-xl sm:text-2xl font-black text-primary-600 dark:text-primary-400">STAR</span>
+                        <span className="text-xl sm:text-2xl font-light text-slate-800 dark:text-slate-100">Air</span>
                     </div>
                     <div className="flex items-center gap-2 sm:gap-6">
                         <button
@@ -57,18 +57,18 @@ export function LandingPage() {
                 <section className="py-12 sm:py-24 lg:py-32 overflow-hidden bg-primary-50 dark:bg-slate-900 border-b border-primary-100 dark:border-slate-800">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid md:grid-cols-2 gap-8 sm:gap-16 items-center">
                         <div>
-                            <h1 className="text-4xl sm:text-5xl lg:text-7xl font-black text-slate-900 dark:text-white mb-6 leading-tight tracking-tight">
+                            <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-black text-slate-900 dark:text-white mb-4 sm:mb-6 leading-tight tracking-tight">
                                 Aviation Safety, <br className="hidden sm:block" />
                                 <span className="text-primary-600 dark:text-primary-400">Elevated.</span>
                             </h1>
-                            <p className="text-base sm:text-xl text-slate-600 dark:text-slate-300 mb-6 sm:mb-10 font-medium leading-relaxed max-w-lg">
+                            <p className="text-sm sm:text-base lg:text-lg text-slate-600 dark:text-slate-300 mb-4 sm:mb-8 font-medium leading-relaxed max-w-lg">
                                 STAR Air ADM empowers commercial airline pilots with advanced risk assessment, biometric monitoring, and comprehensive safety toolkits.
                             </p>
-                            <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4">
-                                <Link to="/about" className="btn-primary text-base sm:text-lg lg:text-xl px-6 sm:px-10 text-center">
+                            <div className="flex flex-col sm:flex-row flex-wrap gap-2.5 sm:gap-3">
+                                <Link to="/about" className="btn-primary text-sm sm:text-base lg:text-lg px-5 sm:px-8 text-center">
                                     🚀 Our Business
                                 </Link>
-                                <button onClick={handleLoginClick} className="btn-secondary text-base sm:text-lg lg:text-xl px-6 sm:px-10 text-center">
+                                <button onClick={handleLoginClick} className="btn-secondary text-sm sm:text-base lg:text-lg px-5 sm:px-8 text-center">
                                     {isAuthenticated ? '📊 My Dashboard' : "🌟 Let's Fly"}
                                 </button>
                             </div>
@@ -77,7 +77,7 @@ export function LandingPage() {
                             <div className="absolute inset-0 bg-accent-trivagoOrange translate-x-4 translate-y-4 rounded-3xl opacity-20 dark:opacity-40"></div>
                             <img src="https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=800&auto=format&fit=crop"
                                 alt="Commercial Pilot"
-                                className="relative rounded-3xl object-cover w-full h-[250px] sm:h-[400px] lg:h-[500px] shadow-sm border-4 border-white dark:border-slate-800" />
+                                className="relative rounded-2xl object-cover w-full h-[200px] sm:h-[320px] lg:h-[400px] shadow-sm border-4 border-white dark:border-slate-800" />
                         </div>
                     </div>
                 </section>
@@ -85,26 +85,26 @@ export function LandingPage() {
                 <section className="py-12 sm:py-24 bg-white dark:bg-surface-dark">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                         <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-20">
-                            <h2 className="text-2xl sm:text-4xl font-black text-slate-900 dark:text-white mb-4 sm:mb-6 tracking-tight">Why STAR Air?</h2>
+                            <h2 className="text-xl sm:text-3xl font-black text-slate-900 dark:text-white mb-3 sm:mb-5 tracking-tight">Why STAR Air?</h2>
                             <p className="text-lg text-slate-600 dark:text-slate-400 font-medium leading-relaxed">
                                 We believe in uncompromised safety and peak performance. Our platform is designed by aviation experts for pilots who demand excellence in every flight.
                             </p>
                         </div>
 
-                        <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-10">
-                            <div className="glass-card p-6 sm:p-10 flex flex-col items-center text-center">
-                                <div className="text-4xl sm:text-6xl mb-4 sm:mb-6">🎯</div>
-                                <h3 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mb-3 sm:mb-4">Precision & Skills</h3>
+                        <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-8">
+                            <div className="glass-card p-5 sm:p-8 flex flex-col items-center text-center">
+                                <div className="text-3xl sm:text-5xl mb-3 sm:mb-5">🎯</div>
+                                <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-2 sm:mb-3">Precision & Skills</h3>
                                 <p className="text-slate-600 dark:text-slate-400 font-medium leading-relaxed">Enhance your decision-making with the DECIDE model and comprehensive pre-flight assessments.</p>
                             </div>
-                            <div className="glass-card p-6 sm:p-10 flex flex-col items-center text-center">
-                                <div className="text-4xl sm:text-6xl mb-4 sm:mb-6">🛡️</div>
-                                <h3 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mb-3 sm:mb-4">Uncompromised Safety</h3>
+                            <div className="glass-card p-5 sm:p-8 flex flex-col items-center text-center">
+                                <div className="text-3xl sm:text-5xl mb-3 sm:mb-5">🛡️</div>
+                                <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-2 sm:mb-3">Uncompromised Safety</h3>
                                 <p className="text-slate-600 dark:text-slate-400 font-medium leading-relaxed">Integrated IMSAFE and PAVE checklists ensure you and your aircraft are always flight-ready.</p>
                             </div>
-                            <div className="glass-card p-6 sm:p-10 flex flex-col items-center text-center sm:col-span-2 md:col-span-1">
-                                <div className="text-4xl sm:text-6xl mb-4 sm:mb-6">⌚</div>
-                                <h3 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mb-3 sm:mb-4">Biometric Monitoring</h3>
+                            <div className="glass-card p-5 sm:p-8 flex flex-col items-center text-center sm:col-span-2 md:col-span-1">
+                                <div className="text-3xl sm:text-5xl mb-3 sm:mb-5">⌚</div>
+                                <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-2 sm:mb-3">Biometric Monitoring</h3>
                                 <p className="text-slate-600 dark:text-slate-400 font-medium leading-relaxed">Connect your smartwatch for real-time fitness analysis to maintain peak physiological performance.</p>
                             </div>
                         </div>
@@ -113,10 +113,10 @@ export function LandingPage() {
 
                 <section className="py-12 sm:py-24 bg-primary-900 text-center">
                     <div className="max-w-4xl mx-auto px-4">
-                        <h2 className="text-2xl sm:text-4xl lg:text-5xl font-black text-white mb-6 sm:mb-8 tracking-tight">Ready to Take Off?</h2>
+                        <h2 className="text-xl sm:text-3xl lg:text-4xl font-black text-white mb-4 sm:mb-6 tracking-tight">Ready to Take Off?</h2>
                         <button
                             onClick={handleLoginClick}
-                            className="btn-primary bg-white text-primary-900 hover:bg-slate-100 text-base sm:text-xl px-8 sm:px-12 py-4 sm:py-5 shadow-none border border-white"
+                            className="btn-primary bg-white text-primary-900 hover:bg-slate-100 text-sm sm:text-lg px-6 sm:px-10 py-3 sm:py-4 shadow-none border border-white"
                         >
                             {isAuthenticated ? '✈️ Back to Dashboard' : '✨ Join the Crew ✨'}
                         </button>
@@ -128,9 +128,9 @@ export function LandingPage() {
             <footer className="bg-slate-900 dark:bg-slate-950 border-t border-slate-800 text-slate-400 py-10 sm:py-16 transition-none">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4 flex flex-col md:flex-row justify-between items-center gap-10">
                     <div>
-                        <div className="flex items-center gap-2 mb-4">
-                            <span className="text-3xl font-black text-white">STAR</span>
-                            <span className="text-3xl font-light text-slate-300">Air</span>
+                        <div className="flex items-center gap-2 mb-3">
+                            <span className="text-2xl font-black text-white">STAR</span>
+                            <span className="text-2xl font-light text-slate-300">Air</span>
                         </div>
                         <p className="font-medium max-w-sm">Empowering pilots with next-generation safety and decision-making tools.</p>
                     </div>

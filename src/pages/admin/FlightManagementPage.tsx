@@ -4,6 +4,7 @@ import type { FlightTripResponseDto, UserResponseDto, CreateFlightTripDto, Updat
 import { FLIGHT_CATEGORIES, getAircraftByCategory } from '../../lib/aircraftData'
 import { searchAerodromes, type Aerodrome } from '../../lib/aerodromeData'
 import { useNotificationStore } from '../../stores/notificationStore'
+import { TripAssessmentBadge } from '../../components/shared/TripAssessmentBadge'
 import { Plus, Plane, Trash2, Calendar, User, RefreshCw, X, ShieldCheck, ClipboardCheck, Brain, Eye, Edit, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import clsx from 'clsx'
@@ -45,9 +46,9 @@ function AerodromeDropdown({ value, onChange, label }: {
 
     return (
         <div className="space-y-1.5" ref={ref}>
-            <label className="text-sm font-bold text-black uppercase tracking-widest">{label}</label>
+            <label className="text-xs font-bold text-black uppercase tracking-widest">{label}</label>
             <input
-                className="w-full bg-white border-2 border-slate-300 rounded-xl px-4 py-3 text-black outline-none focus:border-primary-500 transition-all font-mono uppercase placeholder:text-slate-400 placeholder:normal-case text-base"
+                className="w-full bg-white border-2 border-slate-300 rounded-xl px-3 py-2.5 text-black outline-none focus:border-primary-500 transition-all font-mono uppercase placeholder:text-slate-400 placeholder:normal-case text-sm"
                 placeholder="Search ICAO, city, country..."
                 value={query}
                 onChange={e => { setQuery(e.target.value); setOpen(true); onChange('') }}
@@ -64,7 +65,7 @@ function AerodromeDropdown({ value, onChange, label }: {
                             className="w-full text-left px-4 py-2.5 hover:bg-primary-50 border-b border-slate-100 last:border-0 transition-colors"
                         >
                             <div className="flex items-center justify-between">
-                                <span className="font-mono font-bold text-black text-base">{a.icao}</span>
+                                <span className="font-mono font-bold text-black text-sm">{a.icao}</span>
                                 <span className="text-xs text-slate-500 font-semibold">{a.iata}</span>
                             </div>
                             <div className="text-sm text-slate-700">{a.city}, {a.country}</div>
@@ -276,9 +277,7 @@ export function FlightManagementPage() {
                         <div key={f.id} className="bg-white rounded-2xl p-5 relative group overflow-hidden flex flex-col gap-4 cursor-pointer shadow-xl shadow-slate-300/80 hover:shadow-2xl hover:shadow-slate-400 hover:-translate-y-1 transition-all border-2 border-blue-400/60" onClick={() => navigate(`/trips/${f.id}`)}>
                             {/* Status + Delete */}
                             <div className="flex justify-between items-start">
-                                <div className={clsx('badge text-xs', getStatusBadge(f.status))}>
-                                    {f.status}
-                                </div>
+                                <TripAssessmentBadge trip={f} />
                                 <div className="flex items-center gap-2">
                                     <button onClick={(e) => { e.stopPropagation(); openEditTrip(f) }} className="p-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors" title="Edit Trip">
                                         <Edit size={18} />

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { flightApi, smartWatchApi } from '../../lib/apiClient'
 import type { FlightTripResponseDto, SmartWatchAnalysisDto } from '../../lib/types'
+import { TripAssessmentBadge } from '../../components/shared/TripAssessmentBadge'
 import { LayoutDashboard, Plane, Calendar, CheckCircle, Clock, Watch, ShieldCheck, ClipboardCheck, Brain, ChevronRight, Eye } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useAuthStore } from '../../stores/authStore'
@@ -121,10 +122,10 @@ export function PilotDashboardPage() {
                                     </div>
 
                                     {/* Route */}
-                                    <div className="flex items-center justify-between text-black bg-slate-50 px-4 py-4 rounded-xl border border-slate-200">
-                                        <div className="text-center flex-1 font-black text-2xl text-black">{f.departure}</div>
-                                        <div className="px-3 text-primary-500 font-black text-2xl">→</div>
-                                        <div className="text-center flex-1 font-black text-2xl text-black">{f.arrival}</div>
+                                    <div className="flex items-center justify-between text-black bg-slate-50 px-3 py-3 rounded-xl border border-slate-200">
+                                        <div className="text-center flex-1 font-black text-xl text-black">{f.departure}</div>
+                                        <div className="px-2 text-primary-500 font-black text-xl">→</div>
+                                        <div className="text-center flex-1 font-black text-xl text-black">{f.arrival}</div>
                                     </div>
 
                                     {/* Date */}
@@ -193,19 +194,21 @@ export function PilotDashboardPage() {
                     <div className="space-y-3">
                         {completedFlights.map(f => (
                             <Link key={f.id} to={`/trips/${f.id}`}
-                                className="bg-white px-5 py-4 flex items-center justify-between rounded-2xl border border-slate-100 shadow-md shadow-slate-200/50 hover:shadow-lg hover:-translate-y-1 transition-all cursor-pointer">
-                                <div className="flex items-center gap-6">
-                                    <div className="text-lg font-black text-black">{f.departure} → {f.arrival}</div>
-                                    <div className="text-sm font-bold text-slate-700 bg-slate-100 px-3 py-1 rounded">{f.flightNumber || '—'}</div>
-                                    <div className="text-sm font-bold text-slate-700">{f.aircraftType}</div>
+                                className="bg-white px-4 py-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 rounded-2xl border border-slate-100 shadow-md shadow-slate-200/50 hover:shadow-lg hover:-translate-y-0.5 transition-all cursor-pointer">
+                                <div className="flex items-center gap-3 sm:gap-5 flex-wrap">
+                                    <TripAssessmentBadge trip={f} />
+                                    <div className="text-base font-black text-black">{f.departure} → {f.arrival}</div>
+                                    <div className="text-xs font-bold text-slate-700 bg-slate-100 px-2.5 py-0.5 rounded">{f.flightNumber || '—'}</div>
+                                    <div className="text-xs font-bold text-slate-700">{f.aircraftType}</div>
                                 </div>
-                                <div className="flex items-center gap-4 text-sm font-bold text-slate-800">
-                                    <Calendar size={14} className="text-primary-500" />
-                                    {new Date(f.departureTime).toLocaleString()}
-                                    <div className="flex items-center gap-1 text-primary-600 font-bold uppercase transition-transform group-hover:translate-x-1">
-                                        <Eye size={16} /> View Report
+                                <div className="flex items-center gap-3 text-xs font-bold text-slate-800 mt-2 sm:mt-0">
+                                    <Calendar size={12} className="text-primary-500" />
+                                    <span className="hidden sm:inline">{new Date(f.departureTime).toLocaleString()}</span>
+                                    <span className="sm:hidden">{new Date(f.departureTime).toLocaleDateString()}</span>
+                                    <div className="flex items-center gap-1 text-primary-600 font-bold uppercase ml-2">
+                                        <Eye size={14} /> <span className="hidden sm:inline">View</span>
                                     </div>
-                                    <ChevronRight size={16} className="text-primary-500" />
+                                    <ChevronRight size={14} className="text-primary-500" />
                                 </div>
                             </Link>
                         ))}

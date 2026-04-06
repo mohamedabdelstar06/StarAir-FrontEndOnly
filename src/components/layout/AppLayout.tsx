@@ -30,11 +30,11 @@ export function AppLayout() {
             {/* Main content */}
             <div className="flex-1 flex flex-col overflow-hidden">
                 <Header />
-                <main className="flex-1 overflow-y-auto p-4 lg:p-6">
+                <main className="flex-1 overflow-y-auto overflow-x-hidden p-3 sm:p-4 lg:p-5">
                     {/* Ambient background glow */}
                     <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10">
-                        <div className="absolute top-0 left-1/3 w-96 h-96 bg-primary-600/5 rounded-full blur-3xl" />
-                        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-accent-cyan/5 rounded-full blur-3xl" />
+                        <div className="absolute top-0 left-1/3 w-72 h-72 bg-primary-600/5 rounded-full blur-3xl" />
+                        <div className="absolute bottom-0 right-1/4 w-72 h-72 bg-accent-cyan/5 rounded-full blur-3xl" />
                     </div>
                     <Outlet />
                 </main>

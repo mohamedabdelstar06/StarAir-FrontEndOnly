@@ -52,16 +52,16 @@ export function Sidebar() {
         <aside
             className={clsx(
                 'flex flex-col h-full bg-slate-50 border-r border-slate-200 transition-all duration-300',
-                sidebarCollapsed ? 'w-[68px]' : 'w-64'
+                sidebarCollapsed ? 'w-16' : 'w-56 lg:w-60'
             )}
         >
             {/* Logo */}
-            <div className="flex items-center gap-3 px-4 py-5 border-b border-slate-200">
+            <div className="flex items-center gap-2.5 px-3 py-4 border-b border-slate-200">
                 <button
                     onClick={toggleCollapse}
-                    className="flex-shrink-0 w-9 h-9 rounded-xl bg-primary-600 hover:bg-primary-700 flex items-center justify-center shadow-glow-sm transition-colors"
+                    className="flex-shrink-0 w-8 h-8 rounded-lg bg-primary-600 hover:bg-primary-700 flex items-center justify-center shadow-sm transition-colors"
                 >
-                    <Bird size={20} className="text-white" />
+                    <Bird size={16} className="text-white" />
                 </button>
                 {!sidebarCollapsed && (
                     <div className="animate-fade-in flex-1 cursor-pointer" onClick={toggleCollapse}>
@@ -79,7 +79,7 @@ export function Sidebar() {
             </div>
 
             {/* Nav */}
-            <nav className="flex-1 overflow-y-auto py-4 px-2 space-y-4">
+            <nav className="flex-1 overflow-y-auto py-3 px-1.5 space-y-3">
                 {navigation.map((group) => {
                     const filtered = group.items.filter(
                         (item) => !item.roles || item.roles.some((r) => user?.roles.includes(r as 'Admin' | 'Pilot'))
@@ -117,8 +117,8 @@ export function Sidebar() {
             {/* User info + logout */}
             <div className="border-t border-slate-200 px-2 py-3">
                 {!sidebarCollapsed && user && (
-                    <div className="px-3 py-2 mb-2 rounded-xl bg-white border border-slate-200 shadow-sm animate-fade-in flex items-center gap-2">
-                        <img src={`https://ui-avatars.com/api/?name=${user.fullName.replace(' ', '+')}&background=random&color=fff`} className="w-8 h-8 rounded-full shadow-sm" alt="Pilot avatar" />
+                    <div className="px-2.5 py-2 mb-2 rounded-xl bg-white border border-slate-200 shadow-sm animate-fade-in flex items-center gap-2">
+                        <img src={`https://ui-avatars.com/api/?name=${user.fullName.replace(' ', '+')}&background=random&color=fff`} className="w-7 h-7 rounded-full shadow-sm" alt="Pilot avatar" />
                         <div className="flex-1 min-w-0">
                             <p className="text-xs font-semibold text-slate-900 truncate">{user.fullName}</p>
                             <p className="text-[10px] text-slate-600">{user.roles[0]}</p>

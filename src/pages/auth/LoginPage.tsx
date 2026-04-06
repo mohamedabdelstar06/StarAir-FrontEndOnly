@@ -44,14 +44,14 @@ export function LoginPage() {
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/50 to-transparent" />
                 <div className="absolute inset-0 bg-primary-900/20 mix-blend-multiply" />
                 <div className="relative z-10 text-white max-w-xl animate-slide-up">
-                    <div className="inline-flex items-center justify-center p-3 rounded-2xl bg-white/10 backdrop-blur-md mb-8 border border-white/20 shadow-xl">
-                        <Radio size={32} className="text-white" />
+                    <div className="inline-flex items-center justify-center p-2.5 rounded-xl bg-white/10 backdrop-blur-md mb-6 border border-white/20 shadow-xl">
+                        <Radio size={24} className="text-white" />
                     </div>
-                    <h2 className="text-4xl lg:text-5xl font-black mb-6 leading-tight tracking-tight">
+                    <h2 className="text-3xl lg:text-4xl font-black mb-5 leading-tight tracking-tight">
                         Focus on the flight.<br />
                         <span className="text-primary-400">We'll handle the risk.</span>
                     </h2>
-                    <p className="text-lg text-slate-300 font-medium leading-relaxed">
+                    <p className="text-base text-slate-300 font-medium leading-relaxed">
                         STAR Air ADM empowers commercial airline pilots with advanced biometric monitoring, dynamic safety checklists, and real-time decision support systems.
                     </p>
                 </div>
@@ -60,17 +60,17 @@ export function LoginPage() {
             {/* Right — Login Form */}
             <div className="w-full lg:w-1/2 flex flex-col justify-center items-center p-6 sm:p-12 bg-slate-50">
                 {/* Mobile logo */}
-                <div className="lg:hidden text-center mb-8 animate-slide-up">
-                    <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-primary-600 shadow-lg mb-3">
-                        <Radio size={28} className="text-white" />
+                <div className="lg:hidden text-center mb-6 animate-slide-up">
+                    <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-primary-600 shadow-lg mb-2">
+                        <Radio size={22} className="text-white" />
                     </div>
-                    <h1 className="text-2xl font-bold text-slate-900 tracking-tight">STAR Air ADM</h1>
+                    <h1 className="text-xl font-bold text-slate-900 tracking-tight">STAR Air ADM</h1>
                 </div>
 
-                <div className="w-full max-w-sm animate-slide-up" style={{ animationDelay: '100ms' }}>
-                    <div className="bg-white rounded-3xl p-8 sm:p-10 shadow-sm border border-slate-200">
-                        <h2 className="text-2xl font-black text-slate-900 mb-1">Welcome back</h2>
-                        <p className="text-sm font-medium text-slate-500 mb-8">Sign in to your STAR Air ADM account</p>
+                <div className="w-full max-w-md animate-slide-up" style={{ animationDelay: '100ms' }}>
+                    <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200">
+                        <h2 className="text-xl font-black text-slate-900 mb-1">Welcome back</h2>
+                        <p className="text-sm font-medium text-slate-500 mb-6">Sign in to your STAR Air ADM account</p>
 
                         <form onSubmit={handleLogin} className="space-y-5" noValidate>
                             {/* Email */}

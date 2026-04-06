@@ -36,6 +36,22 @@ export default {
             // Removed animations to improve performance per user request
             animation: {},
             keyframes: {},
+            // Consistent spacing scale (rem-based, so auto-scales with root font-size)
+            spacing: {
+                '4.5': '1.125rem',
+                '13': '3.25rem',
+                '15': '3.75rem',
+                '18': '4.5rem',
+            },
+            // Responsive container defaults
+            screens: {
+                'xs': '475px',
+            },
+            // Ensure max-width classes work properly
+            maxWidth: {
+                '8xl': '88rem',
+                '9xl': '96rem',
+            },
         },
     },
     plugins: [],

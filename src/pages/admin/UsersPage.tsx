@@ -10,15 +10,15 @@ const MEDICAL_CLASSES = ['Class 1', 'Class 2', 'Class 3']
 
 function StatusBadge({ status }: { status: string }) {
     if (status === 'Active')
-        return <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-black bg-green-100 text-green-700 border-2 border-green-300">
-            <span className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse" /> Active
+        return <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-black bg-green-100 text-green-700 border-2 border-green-300">
+            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" /> Active
         </span>
     if (status === 'Pending')
-        return <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-black bg-amber-100 text-amber-700 border-2 border-amber-300">
-            <span className="w-2.5 h-2.5 rounded-full bg-amber-500" /> Pending
+        return <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-black bg-amber-100 text-amber-700 border-2 border-amber-300">
+            <span className="w-2 h-2 rounded-full bg-amber-500" /> Pending
         </span>
-    return <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-black bg-red-100 text-red-700 border-2 border-red-300">
-        <span className="w-2.5 h-2.5 rounded-full bg-red-500" /> Inactive
+    return <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-black bg-red-100 text-red-700 border-2 border-red-300">
+        <span className="w-2 h-2 rounded-full bg-red-500" /> Inactive
     </span>
 }
 

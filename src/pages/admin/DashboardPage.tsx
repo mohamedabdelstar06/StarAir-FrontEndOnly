@@ -53,11 +53,11 @@ function PilotPerformanceChart({ data }: { data: PilotPerformance[] }) {
                 return (
                     <div key={pilot.pilotName} className="space-y-1.5">
                         <div className="flex items-center justify-between">
-                            <span className="text-base font-bold text-black">{pilot.pilotName}</span>
-                            <span className="text-sm text-slate-600 font-semibold">{pilot.total} assessments</span>
+                            <span className="text-sm font-bold text-black">{pilot.pilotName}</span>
+                            <span className="text-xs text-slate-600 font-semibold">{pilot.total} assessments</span>
                         </div>
                         <div
-                            className="h-8 rounded-lg overflow-hidden bg-slate-100 flex"
+                            className="h-6 rounded-lg overflow-hidden bg-slate-100 flex"
                             style={{ width: `${barWidth}%`, minWidth: '40%' }}
                         >
                             {goPercent > 0 && (
@@ -172,7 +172,7 @@ export function DashboardPage() {
     return (
         <div className="space-y-4 sm:space-y-6 w-full overflow-hidden">
             {/* Top metrics */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
                 <MetricCard value={stats.totalPilots} label="Total Pilots" icon={<Users size={18} className="text-primary-500" />} />
                 <MetricCard value={stats.activePilots} label="Active Pilots" icon={<Activity size={18} className="text-green-600" />} color="text-green-600" />
                 <MetricCard value={`${goRate}%`} label="Go Rate" icon={<TrendingUp size={18} className="text-green-600" />} color="text-green-600" />
@@ -189,9 +189,9 @@ export function DashboardPage() {
                     <AdvancedTrendChart assessments={allAssessments} flights={flights} title="System Wide Trend Report" />
 
                     {/* Pilot performance bars */}
-                    <div className="glass-card p-4 sm:p-6 shadow-md shadow-slate-200/50">
-                        <h2 className="text-xl font-black text-black mb-6 flex items-center gap-2">
-                            <BarChart3 size={22} className="text-primary-500" /> Pilot Performance
+                    <div className="glass-card p-3 sm:p-5 shadow-md shadow-slate-200/50">
+                        <h2 className="text-lg font-black text-black mb-4 flex items-center gap-2">
+                            <BarChart3 size={18} className="text-primary-500" /> Pilot Performance
                         </h2>
                         <PilotPerformanceChart data={pilotPerformance} />
                     </div>
@@ -206,7 +206,7 @@ export function DashboardPage() {
                             <div className="flex items-start gap-3 text-amber-800">
                                 <AlertTriangle size={20} className="shrink-0 mt-0.5" />
                                 <div>
-                                    <div className="text-lg font-black uppercase tracking-tight">Action Required</div>
+                                    <div className="text-base font-black uppercase tracking-tight">Action Required</div>
                                     <div className="text-sm font-semibold mt-1">
                                         {stats.pendingPilots} pilot{stats.pendingPilots > 1 ? 's are' : ' is'} pending account activation.
                                     </div>

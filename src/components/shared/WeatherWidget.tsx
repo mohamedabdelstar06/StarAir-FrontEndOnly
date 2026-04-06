@@ -68,18 +68,18 @@ export function WeatherWidget({ icao }: { icao: string }) {
     };
 
     return (
-        <div className="w-full h-full border-0 rounded-[32px] overflow-hidden shadow-xl relative text-white bg-gradient-to-b from-[#4170a4] to-[#2b4c73] p-6 sm:p-8 flex flex-col justify-between min-h-[360px]">
+        <div className="w-full h-full border-0 rounded-2xl overflow-hidden shadow-xl relative text-white bg-gradient-to-b from-[#4170a4] to-[#2b4c73] p-5 sm:p-6 flex flex-col justify-between min-h-[300px]">
             {/* Header */}
             <div className="z-10 w-full mb-6 relative flex justify-between items-start">
                 <div>
-                    <h3 className="text-2xl font-bold tracking-wide text-white">Current Weather</h3>
-                    <div className="text-base font-semibold text-white/80 uppercase flex items-center gap-2 mt-2">
+                    <h3 className="text-xl font-bold tracking-wide text-white">Current Weather</h3>
+                    <div className="text-sm font-semibold text-white/80 uppercase flex items-center gap-2 mt-1.5">
                         <Plane size={16} className="text-sky-300" /> {icao.toUpperCase()}
                         {data.flightCategory && (
-                            <span className={clsx('ml-2 px-3 py-1 rounded-md text-sm font-black uppercase border border-white/20', 
-                                data.flightCategory === 'VFR' ? 'bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]' :
-                                data.flightCategory === 'MVFR' ? 'bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]' :
-                                data.flightCategory === 'IFR' ? 'bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]' :
+                            <span className={clsx('ml-3 px-5 py-1 rounded-md text-xl font-black uppercase border border-white/30', 
+                                data.flightCategory === 'VFR' ? 'bg-green-600 shadow-[0_0_0px_rgba(34,197,94,0.0)]' :
+                                data.flightCategory === 'MVFR' ? 'bg-blue-500 shadow-[0_0_0px_rgba(59,130,246,0.5)]' :
+                                data.flightCategory === 'IFR' ? 'bg-red-500 shadow-[0_0_0px_rgba(239,68,68,0.5)]' :
                                 'bg-purple-500 shadow-[0_0_10px_rgba(168,85,247,0.5)]')}>
                                 {data.flightCategory}
                             </span>
@@ -91,38 +91,39 @@ export function WeatherWidget({ icao }: { icao: string }) {
             {/* Central Big Info */}
             <div className="z-10 flex flex-col items-center justify-center -mt-2">
                 <div className="flex items-center justify-center gap-6">
-                    <div className="text-7xl sm:text-[100px] leading-none select-none filter drop-shadow-2xl">
+                    <div className="text-6xl sm:text-7xl leading-none select-none filter drop-shadow-2xl">
                         {getWeatherEmoji()}
                     </div>
                     <div className="flex flex-col items-start translate-y-3">
-                        <div className="text-7xl sm:text-[90px] font-black tracking-tighter drop-shadow-lg leading-none">
-                            {data.tempDewPoint.split('/')[0]}<span className="text-4xl text-white/80 absolute -top-1">°c</span>
+                        <div className="text-6xl sm:text-7xl font-black tracking-tighter drop-shadow-lg leading-none">
+                            {data.tempDewPoint.split('/')[0]}<span className="text-3xl text-white/80 absolute -top-1">°c</span>
                         </div>
                     </div>
                 </div>
-                <div className="text-xl sm:text-2xl font-bold tracking-wide mt-6 text-white drop-shadow capitalize">
+                <div className="text-lg sm:text-xl font-bold tracking-wide mt-4 text-white drop-shadow capitalize">
                     {data.wxConditions === 'None' ? 'Clear Skies' : data.wxConditions}
                 </div>
                 
                 {/* Assessment Badge */}
                 <div className={clsx('mt-4 inline-flex items-center gap-2 px-4 py-1.5 rounded-full backdrop-blur-md border shadow-md font-bold', statusStyle)}>
-                    <span className="text-sm">{weatherStatus}</span>
-                    <span className="opacity-80 text-xs font-semibold">{statusMsg}</span>
+                    <span className="text-xl">{weatherStatus}</span>
+                    <span className="opacity-80 text-lg font-semibold">{statusMsg}</span>
                 </div>
+                
             </div>
 
             {/* Bottom Metrics Grid */}
-            <div className="z-10 mt-8 grid grid-cols-4 gap-2 border-t border-white/10 pt-6">
+            <div className="z-10 mt-6 grid grid-cols-4 gap-2 pt-2">
                 {[
-                    { icon: <Wind size={20} />, value: data.wind.split('KT')[0] + 'kt', label: 'Wind' },
-                    { icon: <Eye size={20} />, value: data.visibility.replace(' (+/- SM/m)', '').toLowerCase().includes('sm') ? data.visibility.replace(' (+/- SM/m)', '').toLowerCase() : data.visibility.replace(' (+/- SM/m)', '') + 'sm', label: 'Vis' },
-                    { icon: <Cloud size={20} />, value: data.cloudCeiling === 'CLR/NSC' ? 'CLR' : data.cloudCeiling, label: 'Ceil' },
+                    { icon: <Wind size={20} />, value: data.wind.split('KT')[0] + ' kt', label: 'Wind' },
+                    { icon: <Eye size={20} />, value: data.visibility.replace(' (+/- SM/m)', '').toLowerCase().includes(' sm') ? data.visibility.replace(' (+/- SM/m)', '').toLowerCase() : data.visibility.replace(' (+/- SM/m)', '') + ' sm', label: ' Vis' },
+                    { icon: <Cloud size={20} />, value: data.cloudCeiling === 'CLR/NSC ' ? 'CLR ' : data.cloudCeiling, label: 'Ceil ' },
                     { icon: <Thermometer size={20} />, value: data.tempDewPoint.split('/')[1] + '°', label: 'Dew' }
                 ].map((item, i) => (
                     <div key={i} className="flex flex-col items-center justify-center text-center max-w-full overflow-hidden">
                         <div className="text-white/90 mb-2 drop-shadow-md flex-shrink-0">{item.icon}</div>
-                        <div className="text-sm font-black leading-tight drop-shadow-sm mb-1 truncate w-full px-0.5">{item.value}</div>
-                        <div className="text-[10px] text-white/70 font-bold uppercase tracking-widest flex-shrink-0">{item.label}</div>
+                        <div className="text-l font-black text-white  mb-1 truncate w-full px-0.5">{item.value}</div>
+                        <div className="text-[12px] text-white/60 font-bold uppercase tracking-widest flex-shrink-0">{item.label}</div>
                     </div>
                 ))}
             </div>

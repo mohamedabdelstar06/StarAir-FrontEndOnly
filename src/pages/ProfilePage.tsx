@@ -136,7 +136,7 @@ export function ProfilePage() {
                     {isEditing ? (
                         <input
                             ref={editInputRef}
-                            className="w-full px-5 py-4 bg-white border-2 border-primary-500 rounded-xl text-black outline-none text-base font-black transition-all"
+                            className="w-full px-4 py-3 bg-white border-2 border-primary-500 rounded-xl text-black outline-none text-sm font-black transition-all"
                             value={value}
                             onChange={(e) => setter(e.target.value)}
                             onBlur={() => setEditingField(null)}
@@ -144,7 +144,7 @@ export function ProfilePage() {
                         />
                     ) : (
                         <input
-                            className="w-full px-5 py-4 bg-slate-100 text-black border-2 border-slate-200 rounded-xl cursor-not-allowed select-none font-black"
+                            className="w-full px-4 py-3 bg-slate-100 text-black border-2 border-slate-200 rounded-xl cursor-not-allowed select-none font-black"
                             style={{ pointerEvents: 'none' }}
                             value={value || '(Empty)'}
                             readOnly
@@ -174,7 +174,7 @@ export function ProfilePage() {
 
     return (
         <div className="space-y-6 w-full mx-auto" style={{ maxWidth: '100%' }}>
-            <h1 className="text-2xl font-black text-black tracking-widest uppercase">My Profile</h1>
+            <h1 className="text-xl font-black text-black tracking-widest uppercase">My Profile</h1>
 
             <div className="glass-card w-full border-2 border-slate-200 bg-white p-6">
                 <form onSubmit={handleSave} className="space-y-8 w-full">
@@ -182,16 +182,16 @@ export function ProfilePage() {
                         <div className="relative flex-shrink-0 group">
                             <img
                                 src={getAvatarSrc()}
-                                className="w-36 h-36 md:w-48 md:h-48 rounded-full shadow-md object-cover border-8 border-slate-100 cursor-pointer hover:border-primary-200 hover:scale-[1.02] transition-all"
+                                className="w-28 h-28 md:w-36 md:h-36 rounded-full shadow-md object-cover border-6 border-slate-100 cursor-pointer hover:border-primary-200 hover:scale-[1.02] transition-all"
                                 alt="Avatar"
                                 onClick={() => setShowImageModal(true)}
                                 title="Click to view full picture"
                             />
                             <div
-                                className="absolute bottom-2 right-2 w-12 h-12 bg-primary-600 rounded-full flex items-center justify-center cursor-pointer text-white border-4 border-white shadow-lg hover:bg-primary-700 hover:scale-110 transition-all z-10"
+                                className="absolute bottom-1.5 right-1.5 w-10 h-10 bg-primary-600 rounded-full flex items-center justify-center cursor-pointer text-white border-4 border-white shadow-lg hover:bg-primary-700 hover:scale-110 transition-all z-10"
                                 onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click() }}
                             >
-                                <Edit2 size={20} />
+                                <Edit2 size={16} />
                             </div>
                             <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleImageUpload} />
                         </div>

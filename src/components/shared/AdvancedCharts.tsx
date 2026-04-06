@@ -171,8 +171,8 @@ export function AdvancedTrendChart({
     const maxTotal = Math.max(...visibleDays.map((d) => d.total), 1)
     // ── Responsive chart height ──
     const isMobile = typeof window !== 'undefined' && window.innerWidth < 640
-    const chartHeight = isMobile ? 260 : 420
-    const chartPad = isMobile ? 20 : 30
+    const chartHeight = isMobile ? 220 : 340
+    const chartPad = isMobile ? 16 : 24
     const w = 1000
     const dx = visibleDays.length > 1 ? w / (visibleDays.length - 1) : 0
 
@@ -228,7 +228,7 @@ export function AdvancedTrendChart({
                 <div className="absolute top-0 left-0 right-0 h-1 bg-primary-500 opacity-90"></div>
                 
                 <div className="min-w-0 z-10">
-                    <h2 className="text-lg sm:text-xl font-black tracking-tighter truncate text-slate-900">{title}</h2>
+                    <h2 className="text-base sm:text-lg font-black tracking-tighter truncate text-slate-900">{title}</h2>
                     <div className="flex items-center gap-2 sm:gap-3 mt-1.5">
                         <button
                             onClick={handlePrev}
@@ -251,7 +251,7 @@ export function AdvancedTrendChart({
                 </div>
                 <div className="text-right shrink-0 z-10">
                     <div className="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-widest">Total in range</div>
-                    <div className="text-2xl sm:text-3xl font-black text-black leading-none mt-0.5 tracking-tighter">{totalInRange}</div>
+                    <div className="text-xl sm:text-2xl font-black text-black leading-none mt-0.5 tracking-tighter">{totalInRange}</div>
                 </div>
             </div>
 
@@ -568,22 +568,22 @@ export function SystemPieChart({
     const PIE_COLORS = ['#ef4444', '#f97316', '#f59e0b', '#eab308', '#84cc16', '#06b6d4']
 
     return (
-        <div className="bg-white rounded-[24px] shadow-sm border border-slate-200 px-4 sm:px-6 py-6 sm:py-8 flex flex-col h-full font-sans overflow-hidden w-full">
-            <div className="mb-4 text-center md:text-left">
-                <h2 className="text-2xl font-bold text-slate-800 tracking-tight">Reasons for Missing "OK"</h2>
-                <div className="text-base text-slate-500 mt-1 font-medium select-none">Breakdown of reported risks</div>
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 px-3 sm:px-5 py-4 sm:py-6 flex flex-col h-full font-sans overflow-hidden w-full">
+            <div className="mb-3 text-center md:text-left">
+                <h2 className="text-lg sm:text-xl font-bold text-slate-800 tracking-tight">Reasons for Missing "OK"</h2>
+                <div className="text-sm text-slate-500 mt-0.5 font-medium select-none">Breakdown of reported risks</div>
             </div>
 
             {pieTotal > 0 ? (
-                <div className="flex flex-col items-center mt-8 gap-6 w-full flex-1">
+                <div className="flex flex-col items-center mt-4 gap-4 w-full flex-1">
                     {/* Donut Chart */}
-                    <div className="relative flex justify-center items-center shrink-0 w-[160px] h-[160px] mx-auto">
-                        <svg width={160} height={160} className="-rotate-90">
+                    <div className="relative flex justify-center items-center shrink-0 w-[130px] h-[130px] sm:w-[140px] sm:h-[140px] mx-auto">
+                        <svg width={140} height={140} className="-rotate-90">
                             {/* Background ring */}
-                            <circle cx={80} cy={80} r={60} fill="none" stroke="#f1f5f9" strokeWidth={24} />
+                            <circle cx={70} cy={70} r={50} fill="none" stroke="#f1f5f9" strokeWidth={20} />
                             {topReasons.reduce(
                                 (acc, [, count], idx) => {
-                                    const circumference = 2 * Math.PI * 60
+                                    const circumference = 2 * Math.PI * 50
                                     const gap = topReasons.length > 1 ? 4 : 0 // gap in px
                                     const ratio = count / pieTotal
                                     const rawDash = ratio * circumference
@@ -594,12 +594,12 @@ export function SystemPieChart({
                                         acc.elements.push(
                                             <circle
                                                 key={idx}
-                                                cx={80}
-                                                cy={80}
-                                                r={60}
+                                                cx={70}
+                                                cy={70}
+                                                r={50}
                                                 fill="none"
                                                 stroke={PIE_COLORS[idx % PIE_COLORS.length]}
-                                                strokeWidth={24}
+                                                strokeWidth={20}
                                                 strokeDasharray={`${dash} ${circumference - dash}`}
                                                 strokeDashoffset={-offset}
                                             />
@@ -613,7 +613,7 @@ export function SystemPieChart({
                         </svg>
                         {/* Center Box */}
                         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none select-none">
-                            <span className="text-3xl font-black text-slate-800 leading-none">{pieTotal}</span>
+                            <span className="text-2xl font-black text-slate-800 leading-none">{pieTotal}</span>
                             <span className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-widest">Reasons</span>
                         </div>
                     </div>

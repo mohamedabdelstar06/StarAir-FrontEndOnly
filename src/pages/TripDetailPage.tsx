@@ -68,18 +68,18 @@ function ReadonlyRiskCard({
         <div className="w-full bg-white border-2 border-slate-200 rounded-2xl overflow-hidden shadow-sm">
             <div className="flex items-center justify-between gap-4 px-5 py-4">
                 <div className="flex-1 min-w-0">
-                    <div className="text-2xl font-black text-black leading-snug">{label}</div>
-                    {hint && <div className="text-base text-slate-600 mt-1 font-medium leading-relaxed">{hint}</div>}
+                    <div className="text-xl font-black text-black leading-snug">{label}</div>
+                    {hint && <div className="text-sm text-slate-600 mt-0.5 font-medium leading-relaxed">{hint}</div>}
                 </div>
                 <div className="flex gap-2 shrink-0">
                     <div className={clsx(
-                        'px-5 py-2.5 rounded-xl text-base font-black border-2 transition-all',
+                        'px-4 py-2 rounded-xl text-sm font-black border-2 transition-all',
                         isOk
                             ? 'bg-green-500 text-white border-green-600 shadow-md'
                             : 'bg-white text-slate-400 border-slate-200'
                     )}>✅ OK</div>
                     <div className={clsx(
-                        'px-5 py-2.5 rounded-xl text-base font-black border-2 transition-all',
+                        'px-4 py-2 rounded-xl text-sm font-black border-2 transition-all',
                         !isOk
                             ? 'bg-red-500 text-white border-red-600 shadow-md'
                             : 'bg-white text-slate-400 border-slate-200'
@@ -114,12 +114,12 @@ function ResultCard({ result, score, outOf }: { result: string; score: number; o
             : { bg: 'bg-red-50 border-red-300', text: 'text-red-700', msg: 'Do NOT fly today', color: '#dc2626' }
     return (
         <div className={clsx('rounded-2xl border-2 p-5 flex items-center gap-5', cfg.bg)}>
-            <PieChart percentage={okPercent} color={cfg.color} size={80} />
+            <PieChart percentage={okPercent} color={cfg.color} size={64} />
             <div>
-                <div className={clsx('text-2xl font-black', cfg.text)}>{result}</div>
-                <div className="text-sm text-slate-600 font-semibold mt-0.5">{cfg.msg}</div>
-                <div className="text-xs text-slate-500 mt-1">Risk Score: <span className="font-mono font-black text-slate-700">{score}/{outOf}</span></div>
-                <div className={clsx('text-xs font-bold mt-1', cfg.text)}>{okPercent}% OK rate</div>
+                <div className={clsx('text-xl font-black text-black')}>{result}</div>
+                <div className="text-sm text-black font-semibold mt-0.5">{cfg.msg}</div>
+                <div className="text-xs text-black mt-1">Risk Score: <span className="font-mono font-black text-black">{score}/{outOf}</span></div>
+                <div className={clsx('text-xs font-bold mt-1 text-black')}>{okPercent}% OK rate</div>
             </div>
         </div>
     )
@@ -127,10 +127,10 @@ function ResultCard({ result, score, outOf }: { result: string; score: number; o
 
 // ─── Step definitions (mirrors FlightPrepPage) ────────────────────────────────
 const STEPS = [
-    { key: 'sw', label: 'Health', icon: Watch, color: 'text-rose-400', bg: 'bg-rose-500/10 border-rose-500/30' },
-    { key: 'imsafe', label: 'IMSAFE', icon: ShieldCheck, color: 'text-blue-400', bg: 'bg-blue-500/10 border-blue-500/30' },
-    { key: 'pave', label: 'PAVE', icon: ClipboardCheck, color: 'text-purple-400', bg: 'bg-purple-500/10 border-purple-500/30' },
-    { key: 'decide', label: 'DECIDE', icon: Brain, color: 'text-amber-400', bg: 'bg-amber-500/10 border-amber-500/30' },
+    { key: 'sw', label: 'Health', icon: Watch, color: 'text-purple-600', bg: 'bg-purple-500/10 border-purple-500/30' },
+    { key: 'imsafe', label: 'IMSAFE', icon: ShieldCheck, color: 'text-purple-600', bg: 'bg-purple-500/10 border-purple-500/30' },
+    { key: 'pave', label: 'PAVE', icon: ClipboardCheck, color: 'text-purple-600', bg: 'bg-purple-500/10 border-purple-500/30' },
+    { key: 'decide', label: 'DECIDE', icon: Brain, color: 'text-purple-600', bg: 'bg-purple-500/10 border-purple-500/30' },
 ]
 
 const DECIDE_STEP_LABELS: Record<string, { label: string; desc: string; color: string; bg: string }> = {
@@ -203,14 +203,12 @@ export function TripDetailPage() {
     const stepColors = ['#f43f5e', '#3b82f6', '#a855f7', '#f59e0b']
 
     // ── Render SmartWatch step ──────────────────────────────────────────────
-    // Pilots on Pending trips can submit health data; everyone else sees read-only
-    const canSubmitHealth = !isAdmin && flight?.status === 'Pending'
     const renderSmartWatchPanel = () => (
         <div className="space-y-5">
             <SmartWatchPanel
-                tripId={canSubmitHealth ? flight!.id : undefined}
+                tripId={undefined}
                 readingId={flight?.smartWatchReadingId ?? undefined}
-                showEntryForm={canSubmitHealth}
+                showEntryForm={false}
                 onSubmitComplete={() => { loadFlight(); setActiveStep(1) }}
             />
             {swDone && (
@@ -452,7 +450,7 @@ export function TripDetailPage() {
                     <ChevronLeft size={20} className="text-black" />
                 </button>
                 <div>
-                    <h1 className="text-2xl font-black text-black uppercase tracking-tight">Trip Assessment Report</h1>
+                    <h1 className="text-xl font-black text-black uppercase tracking-tight">Trip Assessment Report</h1>
                     <p className="text-sm text-slate-600 font-bold uppercase tracking-widest">{flight.flightNumber || `Trip #${flight.id}`}</p>
                 </div>
             </div>
@@ -478,18 +476,18 @@ export function TripDetailPage() {
                             <div className="flex items-center justify-between text-center bg-slate-50 p-5 rounded-2xl border border-slate-200 col-span-full xl:col-span-1 shadow-sm">
                                 <div className="flex-1">
                                     <div className="text-black text-xs font-bold uppercase tracking-widest mb-1">Departure</div>
-                                    <div className="text-4xl font-black text-black tracking-tight">{flight.departure}</div>
+                                    <div className="text-3xl font-black text-black tracking-tight">{flight.departure}</div>
                                 </div>
                                 <div className="px-4 flex flex-col items-center">
                                     <Plane size={24} className="text-primary-500 rotate-90 opacity-80" />
                                 </div>
                                 <div className="flex-1">
                                     <div className="text-black text-xs font-bold uppercase tracking-widest mb-1">Arrival</div>
-                                    <div className="text-4xl font-black text-black tracking-tight">{flight.arrival}</div>
+                                    <div className="text-3xl font-black text-black tracking-tight">{flight.arrival}</div>
                                 </div>
                             </div>
                             <div className="space-y-4 xl:pl-4">
-                                <div 
+                                <div
                                     className="flex items-center gap-3 text-lg text-black font-semibold cursor-pointer hover:bg-slate-50 p-2 -ml-2 rounded-xl transition-all w-fit"
                                     onClick={() => navigate(`/users/${flight.pilotId}`)}
                                     title="View Pilot Deep Dive"
@@ -507,7 +505,7 @@ export function TripDetailPage() {
                 </div>
 
                 {/* Weather Widget (~35% width) */}
-                <div className="w-full lg:w-[35%] min-h-[360px]">
+                <div className="w-full lg:w-[35%] min-h-[300px]">
                     {flight.departure && <WeatherWidget icao={flight.departure} />}
                 </div>
             </div>
@@ -522,9 +520,9 @@ export function TripDetailPage() {
                 )}
                 {decide && (
                     <div className="rounded-2xl border-2 bg-blue-50 border-blue-300 p-5 flex items-center gap-5">
-                        <PieChart percentage={Math.round((decide.steps.length / 6) * 100)} color="#2563eb" size={80} />
+                        <PieChart percentage={Math.round((decide.steps.length / 6) * 100)} color="#2563eb" size={64} />
                         <div>
-                            <div className="text-2xl font-black text-blue-700">DECIDE</div>
+                            <div className="text-xl font-black text-blue-700">DECIDE</div>
                             <div className="text-sm text-slate-600 font-semibold mt-0.5">{decide.steps.length} / 6 Steps Completed</div>
                             <div className="text-xs text-slate-500 mt-1">Status: {decide.status}</div>
                             <div className="text-xs font-bold mt-1 text-blue-700">{Math.round((decide.steps.length / 6) * 100)}% complete</div>
@@ -551,22 +549,22 @@ export function TripDetailPage() {
                                 key={step.key}
                                 onClick={() => setActiveStep(i)}
                                 className={clsx(
-                                    'flex flex-col items-center text-center p-6 rounded-2xl border-4 transition-all cursor-pointer',
+                                    'flex flex-col items-center text-center p-4 rounded-xl border-4 transition-all cursor-pointer',
                                     done ? 'border-green-500/40 bg-green-500/5' :
                                         isActive ? step.bg :
                                             'border-slate-200 hover:border-slate-300 bg-white'
                                 )}>
-                                <div className={clsx('p-3 rounded-xl mb-3', done ? 'bg-green-500/10 text-green-600' : isActive ? step.color : 'bg-slate-100 text-slate-500')}>
-                                    <Icon size={32} />
+                                <div className={clsx('p-4 rounded-xl mb-4', done ? 'bg-green-500/10 text-green-600' : isActive ? step.color : 'bg-slate-100 text-slate-500')}>
+                                    <Icon size={40} />
                                 </div>
-                                <div className="text-lg font-black text-black mb-2">{step.label}</div>
+                                <div className="text-xl font-black text-black mb-2">{step.label}</div>
                                 {done ? (
-                                    <div className="text-base text-green-700 font-black uppercase flex items-center gap-2">
-                                        <CheckCircle size={18} /> Done
+                                    <div className="text-sm text-green-700 font-black uppercase flex items-center gap-1">
+                                        <CheckCircle size={14} /> Done
                                     </div>
                                 ) : (
-                                    <div className="text-base text-slate-800 font-black uppercase flex items-center gap-2">
-                                        <XCircle size={18} /> Not Done
+                                    <div className="text-sm text-slate-800 font-black uppercase flex items-center gap-1">
+                                        <XCircle size={14} /> Not Done
                                     </div>
                                 )}
                             </button>
@@ -593,7 +591,7 @@ export function TripDetailPage() {
             <div className="glass-card p-6 space-y-5 border-t-4" style={{ borderTopColor: stepColors[activeStep] }}>
                 <div className="flex items-center gap-3 border-b border-slate-200 pb-4">
                     {(() => { const S = STEPS[activeStep]; const Icon = S.icon; return <Icon size={22} className={S.color} /> })()}
-                    <h3 className="text-xl font-black text-black">{STEPS[activeStep].label} Assessment</h3>
+                    <h3 className="text-lg font-black text-black">{STEPS[activeStep].label} Assessment</h3>
                     <span className="ml-auto text-xs text-slate-500 font-bold uppercase tracking-widest">Read-only Review</span>
                 </div>
 

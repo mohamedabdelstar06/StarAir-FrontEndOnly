@@ -97,7 +97,7 @@ export function Header() {
     const now = new Date().toLocaleString('en-US', { weekday: 'short', month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false })
 
     return (
-        <header className="flex items-center gap-4 px-4 lg:px-6 py-3 bg-white border-b border-slate-200">
+        <header className="flex items-center gap-3 px-3 lg:px-5 py-2.5 bg-white border-b border-slate-200">
             {/* Mobile menu toggle */}
             <button onClick={toggleSidebar} className="btn-icon lg:hidden">
                 <Menu size={20} />
@@ -105,7 +105,7 @@ export function Header() {
 
             {/* Page title */}
             <div>
-                <h1 className="text-lg font-bold text-black">{title}</h1>
+                <h1 className="text-base font-bold text-black">{title}</h1>
                 <p className="text-xs text-slate-600 font-mono hidden sm:block">{now}</p>
             </div>
 
@@ -131,7 +131,7 @@ export function Header() {
                     </button>
 
                     {showNotif && (
-                        <div className="absolute right-0 top-full mt-2 w-[calc(100vw-2rem)] sm:w-96 max-w-[96vw] bg-white border border-slate-200 rounded-xl shadow-2xl z-50 overflow-hidden">
+                        <div className="absolute right-0 top-full mt-2 w-[calc(100vw-2rem)] sm:w-80 max-w-[92vw] bg-white border border-slate-200 rounded-xl shadow-2xl z-50 overflow-hidden">
                             <div className="px-4 py-3 border-b border-slate-200 flex items-center justify-between bg-slate-50">
                                 <h3 className="text-base font-bold text-black">Notifications</h3>
                                 <div className="flex items-center gap-2">
@@ -161,7 +161,7 @@ export function Header() {
                 </div>
 
                 {/* Avatar */}
-                <Link to="/profile" className="w-8 h-8 rounded-full bg-primary-600 hover:bg-primary-700 transition-colors border border-primary-500/40 flex items-center justify-center text-xs font-bold text-white cursor-pointer" title="Go to Profile">
+                <Link to="/profile" className="w-7 h-7 rounded-full bg-primary-600 hover:bg-primary-700 transition-colors border border-primary-500/40 flex items-center justify-center text-xs font-bold text-white cursor-pointer" title="Go to Profile">
                     {user?.fullName?.[0]?.toUpperCase() ?? 'U'}
                 </Link>
             </div>
