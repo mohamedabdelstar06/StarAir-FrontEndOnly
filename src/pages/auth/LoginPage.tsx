@@ -67,10 +67,45 @@ export function LoginPage() {
                     <h1 className="text-xl font-bold text-slate-900 tracking-tight">STAR Air ADM</h1>
                 </div>
 
-                <div className="w-full max-w-md animate-slide-up" style={{ animationDelay: '100ms' }}>
-                    <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200">
-                        <h2 className="text-xl font-black text-slate-900 mb-1">Welcome back</h2>
-                        <p className="text-sm font-medium text-slate-500 mb-6">Sign in to your STAR Air ADM account</p>
+                <div className="w-full max-w-2xl animate-slide-up" style={{ animationDelay: '100ms' }}>
+                    
+                    {/* Welcome Banner */}
+                    <div className="mb-6 bg-slate-50 border-2 border-slate-200 rounded-2xl p-4 sm:p-5 shadow-sm">
+                        <div className="mb-3 text-center sm:text-left">
+                            <h3 className="text-xl sm:text-2xl font-black text-slate-900 mb-1">
+                                Hello DR. Mohamed Saad 👋
+                            </h3>
+                            <p className="text-sm sm:text-base font-bold text-slate-700">
+                                If you are a Pilot or an Admin, use these credentials:
+                            </p>
+                        </div>
+                        <div className="flex flex-col xl:flex-row gap-3">
+                            <div className="flex-1 bg-white px-4 py-3 rounded-xl border border-slate-200 shadow-sm">
+                                <h4 className="font-black text-slate-900 mb-2 text-base">🛡️ Admin</h4> 
+                                <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm sm:text-base">
+                                    <span className="text-slate-500 font-bold">Email:</span>
+                                    <span className="font-mono font-bold text-primary-900">admin@starair.com</span>
+                                    
+                                    <span className="text-slate-500 font-bold ml-1">Password:</span>
+                                    <span className="font-mono font-bold text-slate-900">Admin@123!</span>
+                                </div>
+                            </div>
+                            <div className="flex-1 bg-white px-4 py-3 rounded-xl border border-slate-200 shadow-sm">
+                                <h4 className="font-black text-slate-900 mb-2 text-base">✈️ Pilot</h4>
+                                <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-l sm:text-base">
+                                    <span className="text-slate-500 font-bold">Email:</span>
+                                    <span className="font-mono font-bold text-primary-900">pilot@starair.com</span>
+                                    
+                                    <span className="text-slate-500 font-bold ml-1">Password:</span>
+                                    <span className="font-mono font-bold text-slate-900">Pilot@123!</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="bg-white rounded-3xl p-8 sm:p-12 shadow-lg border border-slate-200">
+                        <h2 className="text-3xl font-black text-slate-900 mb-2">Welcome back</h2>
+                        <p className="text-lg font-semibold text-slate-600 mb-8">Sign in to your STAR Air ADM account</p>
 
                         <form onSubmit={handleLogin} className="space-y-5" noValidate>
                             {/* Email */}
@@ -150,7 +185,7 @@ export function LoginPage() {
 
                     <div className="mt-6 text-center">
                         <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-3">STAR Air ADM v1.0</p>
-                        <Link to="/" className="text-sm font-medium text-slate-500 hover:text-slate-800 transition-colors">
+                        <Link to="/" className="text-xl font-medium text-slate-500 hover:text-slate-800 transition-colors">
                             ← Back to Home Page
                         </Link>
                     </div>
